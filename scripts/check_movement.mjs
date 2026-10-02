@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import { MovementController, MOTION } from '../web/movement.js';
+
+const dt=1/60;
+const advance=(c,frames,input,yaw=Math.PI,run=false)=>{for(let i=0;i<frames;i++)c.update(dt,input,yaw,run);};
+let c=new MovementController();
+advance(c,60,{x:.07,forward:0});
+assert.equal(c.speed,0,'dead zone must not drift');
+advance(c,120,{x:0,forward:1});
+assert.ok(c.z>1.5&&Math.abs(c.x)<.00001,'screen-up moves away from the rear camera');
+assert.ok(Math.abs(c.speed-MOTION.walkSpeed)<1e-6,'walk speed reaches configured value');
+const straight=c.speed;
+c.reset();advance(c,120,{x:1,forward:1});
+assert.ok(Math.abs(c.speed-straight)<1e-6,'diagonal input must not gain speed');
+advance(c,120,{x:1,forward:1},Math.PI,true);
+assert.ok(Math.abs(c.speed-MOTION.runSpeed)<1e-6,'run speed reaches configured value');
+assert.equal(c.state,'跑步');
+const beforeStop=c.snapshot();
+advance(c,24,{x:0,forward:0},Math.PI,true);
+assert.equal(c.speed,0,'release must stop within 0.4 seconds');
+advance(c,60,{x:0,forward:0});assert.equal(c.state,'待机');
+c.reset();advance(c,120,{x:0,forward:1},Math.PI/2);
+assert.ok(c.x< -1.5&&Math.abs(c.z)<.00001,'input is relative to camera rotation');
+c.reset();advance(c,4000,{x:0,forward:1},Math.PI,true);
+assert.ok(Math.hypot(c.x,c.z)<=MOTION.arenaRadius+1e-6,'floor boundary is enforced');
+assert.ok(Number.isFinite(c.phase));
+c.reset();advance(c,60,{x:NaN,forward:Infinity});assert.equal(c.speed,0,'invalid input cannot corrupt movement');
+console.log(JSON.stringify({status:'passed',checks:9,walkSpeed:MOTION.walkSpeed,runSpeed:MOTION.runSpeed,runBeforeRelease:beforeStop},null,2));

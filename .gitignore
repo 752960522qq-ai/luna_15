@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+node_modules/
+android/.gradle/
+android/local.properties
+android/**/build/
+reports/
+artifacts/
+*.apk
+*.log
+web/assets/jill-heels-locomotion.glb

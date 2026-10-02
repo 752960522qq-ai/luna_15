@@ -1,0 +1,44 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.luna.heelmotion'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.luna.heelmotion'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0-test'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    buildFeatures { buildConfig true }
+    signingConfigs {
+        debug {
+            // Public development certificate; only for this test application.
+            storeFile file('../test-signing.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes { debug { signingConfig signingConfigs.debug } }
+    sourceSets { main { assets.srcDirs = ['../../web'] } }
+    androidResources { noCompress += ['glb'] }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}
+
+tasks.register('prepareModel', Exec) {
+    workingDir rootProject.file('..')
+    commandLine 'python3', 'scripts/prepare_assets.py'
+}
+tasks.named('preBuild').configure { dependsOn 'prepareModel' }

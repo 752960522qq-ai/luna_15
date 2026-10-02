@@ -1,0 +1,5 @@
+* text=auto
+*.glb binary
+*.keystore binary
+*.jar binary
+*.gz binary

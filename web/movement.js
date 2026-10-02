@@ -1,0 +1,50 @@
+// Pure movement state. Speeds are metres/second; forward is the model's +Z.
+export const MOTION = Object.freeze({ walkSpeed: .95, runSpeed: 2.4, walkPeriod: 1.166666627, runPeriod: .66, deadZone: .10, arenaRadius: 22 });
+export class MovementController {
+  constructor() { this.walkStride=MOTION.walkSpeed*MOTION.walkPeriod; this.reset(); }
+  setWalkReference(stride) {
+    if(!Number.isFinite(stride)||stride<=0)throw new Error('Walk stride must be a positive distance');
+    this.walkStride=stride;
+  }
+  reset() { this.x=0; this.z=0; this.vx=0; this.vz=0; this.yaw=0; this.phase=0; this.runMix=0; this.moveMix=0; this.elapsed=0; }
+  update(dt, input, cameraYaw, running) {
+    dt=Math.min(Math.max(dt,0),.05); this.elapsed+=dt;
+    let ix=Number.isFinite(input.x)?input.x:0, iz=Number.isFinite(input.forward)?input.forward:0;
+    let strength=Math.min(1,Math.hypot(ix,iz));
+    const length=Math.hypot(ix,iz);
+    if(length>MOTION.deadZone){ ix/=length; iz/=length; strength=(strength-MOTION.deadZone)/(1-MOTION.deadZone); }
+    else { ix=iz=strength=0; }
+    const maxSpeed=running?MOTION.runSpeed:MOTION.walkSpeed;
+    const tx=(ix*Math.cos(cameraYaw)-iz*Math.sin(cameraYaw))*maxSpeed*strength;
+    const tz=(-ix*Math.sin(cameraYaw)-iz*Math.cos(cameraYaw))*maxSpeed*strength;
+    const dx=tx-this.vx,dz=tz-this.vz,change=Math.hypot(dx,dz);
+    const acceleration=strength===0?8:running?5.5:4;
+    const step=change?Math.min(1,acceleration*dt/change):0;
+    this.vx+=dx*step;this.vz+=dz*step;
+    if(Math.hypot(this.vx,this.vz)<.003&&strength===0)this.vx=this.vz=0;
+    this.x+=this.vx*dt;this.z+=this.vz*dt;
+    // Stop at the test floor edge without wrapping or teleporting.
+    const radius=Math.hypot(this.x,this.z);
+    if(radius>MOTION.arenaRadius){
+      const nx=this.x/radius,nz=this.z/radius;
+      this.x=nx*MOTION.arenaRadius;this.z=nz*MOTION.arenaRadius;
+      const outward=this.vx*nx+this.vz*nz;
+      if(outward>0){this.vx-=nx*outward;this.vz-=nz*outward;}
+    }
+    const speed=this.speed;
+    if(speed>.025){
+      const targetYaw=Math.atan2(this.vx,this.vz);
+      const turn=Math.atan2(Math.sin(targetYaw-this.yaw),Math.cos(targetYaw-this.yaw));
+      this.yaw+=turn*(1-Math.exp(-dt*13));
+    }
+    const runTarget=Math.max(0,Math.min(1,(speed-.95)/1.45));
+    this.runMix+=(runTarget-this.runMix)*(1-Math.exp(-dt*9));
+    const moveTarget=Math.min(1,speed/.22);
+    this.moveMix+=(moveTarget-this.moveMix)*(1-Math.exp(-dt*12));
+    const stride=this.walkStride*(1-this.runMix)+MOTION.runSpeed*MOTION.runPeriod*this.runMix;
+    this.phase=(this.phase+dt*speed/stride)%1;
+  }
+  get speed(){return Math.hypot(this.vx,this.vz);}
+  get state(){return this.speed<.035?"待机":this.runMix>.48?"跑步":"走路";}
+  snapshot(){return {state:this.state,speed:Number(this.speed.toFixed(3)),position:{x:Number(this.x.toFixed(3)),z:Number(this.z.toFixed(3))},phase:this.phase};}
+}
