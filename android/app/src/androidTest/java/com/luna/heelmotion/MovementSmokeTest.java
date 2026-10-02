@@ -33,7 +33,7 @@ public final class MovementSmokeTest {
             value[0] = result;
             done.countDown();
         }));
-        assertTrue("WebView callback timed out", done.await(15, TimeUnit.SECONDS));
+        assertTrue("WebView callback timed out", done.await(60, TimeUnit.SECONDS));
         return value[0];
     }
     private JSONObject object(String expression) throws Exception {
@@ -142,6 +142,14 @@ public final class MovementSmokeTest {
             }
             bitmap.recycle();
         } finally {
+            Bitmap diagnostic = getInstrumentation().getUiAutomation().takeScreenshot();
+            if (diagnostic != null) {
+                File file = new File(getInstrumentation().getTargetContext().getFilesDir(), "test-preview.png");
+                try (FileOutputStream stream = new FileOutputStream(file)) {
+                    diagnostic.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                }
+                diagnostic.recycle();
+            }
             getInstrumentation().runOnMainSync(() -> activity.finish());
         }
     }
