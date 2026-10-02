@@ -34,7 +34,12 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - uses: android-actions/setup-android@v3
+        with:
+          gradle-version: '8.11.1'
+      - uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: 11076708
+          packages: 'platform-tools'
       - name: Install Android platform and build tools
         run: sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
       - name: Build test application and instrumentation APK
