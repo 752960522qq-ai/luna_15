@@ -1,14 +1,23 @@
 import * as THREE from './vendor/three.module.js';
 
-// The baked scene is already in metres, with asphalt at Y=0 and kerbs at 0.2.
+// Only the city is scaled; the separately loaded character keeps its size.
+export const CITY_SCALE=.45;
+
+// Bake coordinates are metres. The runtime kerb height becomes 0.09 m.
 export function cityWorld(gltf) {
-  const world=gltf.parser.json.scenes[gltf.parser.json.scene||0]?.extras;
-  if(world?.unit!=='metre'||!world.bounds||!world.obstacles?.length)throw new Error('City metadata is incomplete');
+  const original=gltf.parser.json.scenes[gltf.parser.json.scene||0]?.extras;
+  if(original?.unit!=='metre'||!original.bounds||!original.obstacles?.length)throw new Error('City metadata is incomplete');
+  gltf.scene.scale.setScalar(CITY_SCALE);
   gltf.scene.traverse(obj=>{
     if(!obj.isMesh)return;
     obj.castShadow=true;obj.receiveShadow=true;
   });
-  return world;
+  gltf.scene.updateMatrixWorld(true);
+  return {...original,scale:CITY_SCALE,sourceUnitToMetres:original.sourceUnitToMetres*CITY_SCALE,
+    groundY:original.groundY*CITY_SCALE,
+    spawn:{...original.spawn,x:original.spawn.x*CITY_SCALE,z:original.spawn.z*CITY_SCALE},
+    bounds:Object.fromEntries(Object.entries(original.bounds).map(([key,value])=>[key,value*CITY_SCALE])),
+    obstacles:original.obstacles.map(box=>({...box,min:box.min.map(v=>v*CITY_SCALE),max:box.max.map(v=>v*CITY_SCALE)}))};
 }
 
 export function groundSampler(scene){

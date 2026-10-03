@@ -121,7 +121,7 @@ public final class MovementSmokeTest {
         try {
             JSONObject initial = waitFor("待机", 120000);
             assertEquals("Four animation clips loaded", 4, initial.getJSONArray("animations").length());
-            assertEquals("Closer third-person camera", 3.5, initial.getDouble("cameraDistance"), .001);
+            assertEquals("Closer third-person camera", 2.2, initial.getDouble("cameraDistance"), .001);
             assertTrue("WebGL2 renderer running", initial.getInt("frames") > 0);
             assertEquals("Model loaded through offline HTTPS assets", "appassets.androidplatform.net",
                 initial.getString("host"));

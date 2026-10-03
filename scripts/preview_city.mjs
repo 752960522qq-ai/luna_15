@@ -36,12 +36,14 @@ try{
   await page.waitForFunction(()=>window.__heelMotionSnapshot?.().loaded&&window.__heelMotionSnapshot().shoeClearance!==null,{timeout:120000});
   const initial=await page.evaluate(()=>window.__heelMotionSnapshot());
   assert.equal(initial.city.drawMeshes,22);assert.equal(initial.animations.length,4);
-  assert.equal(initial.cameraDistance,3.5);assert.equal(initial.groundY,0);
+  assert.equal(initial.cameraDistance,2.2);assert.equal(initial.city.scale,.45);assert.equal(initial.groundY,0);
+  assert.ok(Math.abs(initial.actualCameraDistance-2.2)<.001,'render camera uses the requested closer distance');
+  assert.deepEqual(initial.characterScale,[1,1,1],'character size is unchanged');
   assert.ok(initial.shoeClearance>=.00099,'heels rest on asphalt');
   const captureStyle=await page.addStyleTag({content:'#app > :not(canvas){visibility:hidden!important}'});
   const views={
-    'luna15-city-preview':{position:[3,3.3,10],target:[-2,2,-18]},
-    'city-overview':{position:[105,145,115],target:[-45,0,-30]}
+    'luna15-city-scale045-preview':null,
+    'city-overview':{position:[47.25,65.25,51.75],target:[-20.25,0,-13.5]}
   };
   for(const [name,camera] of process.env.PREVIEW_CAPTURE==='0'?[]:Object.entries(views)){
     const previous=await page.evaluate(camera=>{window.__heelMotionPreviewCamera(camera);return window.__heelMotionSnapshot().frames;},camera);
@@ -73,7 +75,8 @@ try{
   assert.deepEqual(states,['走路','跑步','瞄准待机']);
   assert.deepEqual(errors,[]);
   const report={status:'passed',loaded:initial.loaded,animations:initial.animations,
-    city:initial.city,shoeClearanceMetres:initial.shoeClearance,states,browserErrors:errors};
+    city:initial.city,characterScale:initial.characterScale,cameraDistanceMetres:initial.actualCameraDistance,
+    shoeClearanceMetres:initial.shoeClearance,states,browserErrors:errors};
   await fs.writeFile(path.join(output,'preview-check.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));
 }finally{

@@ -1,21 +1,23 @@
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { MovementController, MOTION } from './movement.js?v=city-1';
-import { cityWorld, cameraFraction, groundSampler } from './city.js';
+import { cityWorld, cameraFraction, groundSampler } from './city.js?v=city-scale-045';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene'),loading=$('loading');
 const controller=new MovementController();
 const keys=new Set();
 const stick={x:0,forward:0,pointer:null};
-const cameraState={yaw:Math.PI+.30,pitch:.22,distance:3.5,foot:false,drag:null};
+const CAMERA_DISTANCE=2.2,CAMERA_TARGET_HEIGHT=.9;
+const cameraState={yaw:Math.PI+.30,pitch:.22,distance:CAMERA_DISTANCE,foot:false,drag:null};
 let runMode=false,ready=false,mixer,actions={},actor=new THREE.Group(),lastFrame=performance.now(),lastHud=0;
-let renderer,renderFrames=0,world=null,previewCamera=null,sampleGround=null,currentGroundY=0,lastShoeMinimum=null,reframeCamera=null;
+let renderer,renderFrames=0,world=null,previewCamera=null,sampleGround=null,currentGroundY=0,lastShoeMinimum=null,reframeCamera=null,actualCameraDistance=0;
 if(new URLSearchParams(location.search).get('diagnostics')==='1'){
   window.__heelMotionSnapshot=()=>({...controller.snapshot(),loaded:ready,running:runMode,
     animations:Object.keys(actions),weights:controller.weights,frames:renderFrames,footView:cameraState.foot,cameraDistance:cameraState.distance,host:location.hostname,
     groundY:currentGroundY,shoeClearance:lastShoeMinimum===null?null:lastShoeMinimum-currentGroundY,
-    city:world?{name:world.name,unit:world.unit,bounds:world.bounds,drawMeshes:world.drawMeshes}:null});
+    actualCameraDistance,characterScale:actor.scale.toArray(),
+    city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null});
   // Development-only still rendering. The normal camera and controls keep
   // their existing close third-person defaults when diagnostics is absent.
   window.__heelMotionPreviewCamera=value=>{
@@ -46,7 +48,7 @@ if(renderer){
   const scene=new THREE.Scene();
   scene.background=new THREE.Color('#a9c7dd');
   scene.fog=new THREE.Fog('#a9c7dd',120,550);
-  const camera=new THREE.PerspectiveCamera(43,1,.03,900);
+  const camera=new THREE.PerspectiveCamera(46,1,.03,900);
   const hemi=new THREE.HemisphereLight('#d6eef7','#727b62',2.2);scene.add(hemi);
   const sun=new THREE.DirectionalLight('#fff2de',3.1);sun.position.set(35,65,25);
   sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
@@ -56,7 +58,7 @@ if(renderer){
   scene.add(actor);
 
   const target=new THREE.Vector3(0,1,0),cameraDesired=new THREE.Vector3(),look=new THREE.Vector3(),lightTarget=new THREE.Vector3(),lightOffset=new THREE.Vector3(35,65,25);
-  reframeCamera=()=>{camera.position.set(0,0,0);look.set(controller.x,(sampleGround?.(controller.x,controller.z)||0)+1.02,controller.z);};
+  reframeCamera=()=>{camera.position.set(0,0,0);look.set(controller.x,(sampleGround?.(controller.x,controller.z)||0)+CAMERA_TARGET_HEIGHT,controller.z);};
   const contactVertex=new THREE.Vector3();
   const leftContact=new THREE.Vector3(),rightContact=new THREE.Vector3();
   let shoeContact=null,headAnchor=null;
@@ -181,7 +183,7 @@ if(renderer){
       lightTarget.set(controller.x,currentGroundY,controller.z);sun.target.position.copy(lightTarget);sun.position.copy(lightTarget).add(lightOffset);
       if(now-lastHud>100){$('speed').textContent=controller.speed.toFixed(2);$('motion-state').textContent=controller.state;$('speed-fill').style.width=`${controller.speed/MOTION.runSpeed*100}%`;lastHud=now;}
     }
-    const height=cameraState.foot ? .28 : 1.02;
+    const height=cameraState.foot ? .28 : CAMERA_TARGET_HEIGHT;
     target.set(controller.x,currentGroundY+height,controller.z);
     const distance=cameraState.foot ? 1.5 : cameraState.distance;
     const pitch=cameraState.foot ? .105 : cameraState.pitch;
@@ -195,6 +197,7 @@ if(renderer){
     camera.position.lerpVectors(target,camera.position,cameraFraction(world,target,camera.position));
     look.lerp(target,1-Math.exp(-dt*12));camera.lookAt(look);
     if(previewCamera){camera.position.fromArray(previewCamera.position);camera.lookAt(new THREE.Vector3().fromArray(previewCamera.target));}
+    actualCameraDistance=camera.position.distanceTo(target);
     renderer.render(scene,camera);renderFrames++;
   }
   requestAnimationFrame(frame);
@@ -223,7 +226,7 @@ function bindToggle(button,toggle){
 bindToggle($('run'),()=>setRun(!runMode));
 function setAim(value){controller.setAim(value);$('aim').setAttribute('aria-pressed',String(controller.aiming));}
 bindToggle($('aim'),()=>setAim(!controller.aiming));
-function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=(world?.spawn.yaw||0)+Math.PI+.30;cameraState.pitch=.22;cameraState.distance=3.5;actor.position.set(controller.x,0,controller.z);actor.rotation.y=controller.yaw;reframeCamera?.();}
+function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=(world?.spawn.yaw||0)+Math.PI+.30;cameraState.pitch=.22;cameraState.distance=CAMERA_DISTANCE;actor.position.set(controller.x,0,controller.z);actor.rotation.y=controller.yaw;reframeCamera?.();}
 $('reset').addEventListener('click',reset);
 $('foot-view').addEventListener('click',()=>{cameraState.foot=!cameraState.foot;$('foot-view').setAttribute('aria-pressed',String(cameraState.foot));$('foot-view').textContent=cameraState.foot?'全身视角':'脚部视角';});
 
@@ -259,7 +262,7 @@ canvas.addEventListener('pointermove',e=>{
   d.x=e.clientX;d.y=e.clientY;
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>{if(cameraState.drag?.id===e.pointerId)cameraState.drag=null;});
-canvas.addEventListener('wheel',e=>{e.preventDefault();cameraState.distance=THREE.MathUtils.clamp(cameraState.distance+e.deltaY*.004,2.2,6.5);},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();cameraState.distance=THREE.MathUtils.clamp(cameraState.distance+e.deltaY*.004,1.4,4.1);},{passive:false});
 document.addEventListener('contextmenu',e=>e.preventDefault());
 
 // Feature-detected: the same actions as the visible controls, without a
