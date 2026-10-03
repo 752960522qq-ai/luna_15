@@ -170,10 +170,11 @@ function bindToggle(button,toggle){
     if(!touchClickPending)return;
     e.preventDefault();toggle();
   });
+  button.addEventListener('keydown',()=>{touchClickPending=false;});
   button.addEventListener('click',e=>{
-    // A primary touch may also synthesize a click. Keyboard/programmatic
-    // clicks have detail=0 and retain normal button accessibility.
-    if(e.detail>0&&touchClickPending){touchClickPending=false;e.preventDefault();return;}
+    // A primary touch may also synthesize a trusted click. Keyboard input
+    // clears the pending touch, and programmatic clicks still work normally.
+    if(e.isTrusted&&touchClickPending){touchClickPending=false;e.preventDefault();return;}
     touchClickPending=false;
     toggle();
   });
@@ -218,7 +219,7 @@ canvas.addEventListener('pointermove',e=>{
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>{if(cameraState.drag?.id===e.pointerId)cameraState.drag=null;});
 canvas.addEventListener('wheel',e=>{e.preventDefault();cameraState.distance=THREE.MathUtils.clamp(cameraState.distance+e.deltaY*.004,2.2,6.5);},{passive:false});
-canvas.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('contextmenu',e=>e.preventDefault());
 
 // Feature-detected: the same actions as the visible controls, without a
 // dependency on browser agent support or any network service.

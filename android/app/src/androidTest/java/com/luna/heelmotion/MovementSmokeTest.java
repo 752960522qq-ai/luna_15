@@ -80,9 +80,15 @@ public final class MovementSmokeTest {
             origin[1] + (float)(rect.getDouble("y") * scale)};
     }
     private void touch(long start, int action, float[] xy) {
-        MotionEvent event = MotionEvent.obtain(start, SystemClock.uptimeMillis(), action,
-            xy[0], xy[1], 0);
-        event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        MotionEvent.PointerProperties property = new MotionEvent.PointerProperties();
+        property.id = 0;
+        property.toolType = MotionEvent.TOOL_TYPE_FINGER;
+        MotionEvent.PointerCoords coordinate = new MotionEvent.PointerCoords();
+        coordinate.x = xy[0]; coordinate.y = xy[1];
+        coordinate.pressure = 1; coordinate.size = .15f;
+        MotionEvent event = MotionEvent.obtain(start, SystemClock.uptimeMillis(), action, 1,
+            new MotionEvent.PointerProperties[]{property}, new MotionEvent.PointerCoords[]{coordinate},
+            0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
         getInstrumentation().sendPointerSync(event);
         event.recycle();
     }
