@@ -43,6 +43,27 @@ public final class MovementSmokeTest {
     private JSONObject snapshot() throws Exception {
         return object("window.__heelMotionSnapshot ? window.__heelMotionSnapshot() : {loaded:false}");
     }
+    private void visualReady() throws Exception {
+        CountDownLatch committed = new CountDownLatch(1);
+        getInstrumentation().runOnMainSync(() -> webView.postVisualStateCallback(
+            SystemClock.uptimeMillis(), new WebView.VisualStateCallback() {
+                @Override public void onComplete(long requestId) {
+                    webView.postOnAnimation(() -> webView.postOnAnimation(committed::countDown));
+                }
+            }));
+        assertTrue("WebView did not commit the updated UI", committed.await(60, TimeUnit.SECONDS));
+    }
+    private JSONObject waitForMode(String mode) throws Exception {
+        long end = SystemClock.uptimeMillis() + 30000;
+        JSONObject value = null;
+        do {
+            value = snapshot();
+            if (mode.equals(value.optString("mode"))) return value;
+            SystemClock.sleep(200);
+        } while (SystemClock.uptimeMillis() < end);
+        fail("Did not enter " + mode + ": " + value);
+        return value;
+    }
     private JSONObject waitFor(String state, long timeout) throws Exception {
         long end = SystemClock.uptimeMillis() + timeout;
         JSONObject value = null;
@@ -112,11 +133,16 @@ public final class MovementSmokeTest {
     }
 
     private void tap(String id) throws Exception {
+        // JS readiness can precede Chromium's compositor/hit-test update,
+        // particularly during the first heavy GLB frame on SwiftShader.
+        visualReady();
         float[] xy = point(id, .5);
+        System.out.println("Native tap " + id + " at " + xy[0] + "," + xy[1]);
         long start = SystemClock.uptimeMillis();
         touch(start, MotionEvent.ACTION_DOWN, xy);
         SystemClock.sleep(80);
         touch(start, MotionEvent.ACTION_UP, xy);
+        visualReady();
     }
     private void click(String action, String value) throws Exception {
         evaluate("document.querySelector('[data-action=\"" + action + "\"]"
@@ -144,6 +170,8 @@ public final class MovementSmokeTest {
             assertEquals(2.2, initial.getDouble("cameraDistance"), .001);
             assertEquals("appassets.androidplatform.net", initial.getString("host"));
             tap("new-game");
+            if ("new-confirm".equals(snapshot().optString("modal"))) click("new", null);
+            waitForMode("play");
             assertEquals("home", snapshot().getJSONObject("player").getString("area"));
             teleport("city", 0, 0);
             float[] center = point("joystick", .5), forward = point("joystick", .16);
@@ -187,6 +215,7 @@ public final class MovementSmokeTest {
             start();
             waitFor("待机", 180000);
             tap("continue-game");
+            waitForMode("play");
             JSONObject restored = snapshot().getJSONObject("player");
             assertEquals("Money survives a new WebView", 420, restored.getInt("money"));
             assertEquals("Outfit survives a new WebView", "night", restored.getJSONObject("outfit").getString("preset"));
