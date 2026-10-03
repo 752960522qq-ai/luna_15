@@ -1,0 +1,6 @@
+{
+  "name": "luna15-heel-motion",
+  "private": true,
+  "type": "module",
+  "devDependencies": { "three": "0.180.0" }
+}

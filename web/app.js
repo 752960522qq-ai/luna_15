@@ -1,18 +1,18 @@
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
-import { MovementController, MOTION } from './movement.js?v=female-walk-2';
+import { MovementController, MOTION } from './movement.js?v=motion-4-v2';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene'),loading=$('loading');
 const controller=new MovementController();
 const keys=new Set();
 const stick={x:0,forward:0,pointer:null};
-const cameraState={yaw:Math.PI+.30,pitch:.22,distance:4.7,foot:false,drag:null};
+const cameraState={yaw:Math.PI+.30,pitch:.22,distance:3.5,foot:false,drag:null};
 let runMode=false,ready=false,mixer,actions={},actor=new THREE.Group(),lastFrame=performance.now(),lastHud=0;
 let renderer,renderFrames=0;
 if(new URLSearchParams(location.search).get('diagnostics')==='1'){
   window.__heelMotionSnapshot=()=>({...controller.snapshot(),loaded:ready,running:runMode,
-    animations:Object.keys(actions),frames:renderFrames,footView:cameraState.foot,host:location.hostname});
+    animations:Object.keys(actions),weights:controller.weights,frames:renderFrames,footView:cameraState.foot,cameraDistance:cameraState.distance,host:location.hostname});
 }
 
 function fail(message,error){
@@ -57,7 +57,7 @@ if(renderer){
   resize();window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
 
   const loader=new GLTFLoader();
-  loader.load('./assets/jill-heels-locomotion.glb?v=female-walk-2',gltf=>{
+  loader.load('./assets/jill-heels-locomotion.glb?v=motion-4-v2',gltf=>{
     actor.add(gltf.scene);
     actor.updateMatrixWorld(true);
     const bodySpine=gltf.scene.getObjectByName('Bodyspine_2'),headSpine=gltf.scene.getObjectByName('Headspine_2');
@@ -86,8 +86,11 @@ if(renderer){
     const walkDefinition=gltf.parser.json.animations.find(a=>a.name==='Walk_Heels');
     const referenceStride=walkDefinition?.extras?.referenceStrideDistance;
     if(Number.isFinite(referenceStride)&&referenceStride>0)controller.setWalkReference(referenceStride);
+    const runDefinition=gltf.parser.json.animations.find(a=>a.name==='Run_Heels');
+    const runStride=runDefinition?.extras?.referenceStrideDistance;
+    if(Number.isFinite(runStride)&&runStride>0)controller.setRunReference(runStride);
     mixer=new THREE.AnimationMixer(gltf.scene);
-    for(const name of ['Idle_Heels','Walk_Heels','Run_Heels']){
+    for(const name of ['Idle_Heels','Walk_Heels','Run_Heels','Rifle_Aim_Idle']){
       const clip=THREE.AnimationClip.findByName(gltf.animations,name);
       if(!clip){fail('动画文件不完整，请重新载入。');return;}
       const action=mixer.clipAction(clip);action.play();action.setEffectiveWeight(name==='Idle_Heels'?1:0);
@@ -103,13 +106,11 @@ if(renderer){
   },error=>fail('模型加载失败，请点击重新加载。',error));
 
   function setAnimations(){
-    const moving=controller.moveMix,running=controller.runMix;
-    actions.Idle_Heels.action.time=(controller.elapsed%actions.Idle_Heels.duration);
-    actions.Walk_Heels.action.time=controller.phase*actions.Walk_Heels.duration;
-    actions.Run_Heels.action.time=controller.phase*actions.Run_Heels.duration;
-    actions.Idle_Heels.action.setEffectiveWeight(1-moving);
-    actions.Walk_Heels.action.setEffectiveWeight(moving*(1-running));
-    actions.Run_Heels.action.setEffectiveWeight(moving*running);
+    const weights=controller.weights;
+    for(const [name,{action,duration}] of Object.entries(actions)){
+      action.time=name==='Walk_Heels'||name==='Run_Heels'?controller.phase*duration:controller.elapsed%duration;
+      action.setEffectiveWeight(weights[name]);
+    }
   }
 
   function frame(now){
@@ -161,7 +162,9 @@ if(renderer){
 
 function setRun(value){runMode=!!value;$('run').setAttribute('aria-pressed',String(runMode));$('run-hint').textContent=runMode?'再次点击走路':'点击切换';}
 $('run').addEventListener('click',()=>setRun(!runMode));
-function reset(){controller.reset();setRun(false);clearInput();cameraState.yaw=Math.PI+.30;cameraState.pitch=.22;cameraState.distance=4.7;actor.position.set(0,0,0);actor.rotation.y=0;}
+function setAim(value){controller.setAim(value);$('aim').setAttribute('aria-pressed',String(controller.aiming));}
+$('aim').addEventListener('click',()=>setAim(!controller.aiming));
+function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=Math.PI+.30;cameraState.pitch=.22;cameraState.distance=3.5;actor.position.set(0,0,0);actor.rotation.y=0;}
 $('reset').addEventListener('click',reset);
 $('foot-view').addEventListener('click',()=>{cameraState.foot=!cameraState.foot;$('foot-view').setAttribute('aria-pressed',String(cameraState.foot));$('foot-view').textContent=cameraState.foot?'全身视角':'脚部视角';});
 
@@ -197,7 +200,7 @@ canvas.addEventListener('pointermove',e=>{
   d.x=e.clientX;d.y=e.clientY;
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>{if(cameraState.drag?.id===e.pointerId)cameraState.drag=null;});
-canvas.addEventListener('wheel',e=>{e.preventDefault();cameraState.distance=THREE.MathUtils.clamp(cameraState.distance+e.deltaY*.004,2.8,7);},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();cameraState.distance=THREE.MathUtils.clamp(cameraState.distance+e.deltaY*.004,2.2,6.5);},{passive:false});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 
 // Feature-detected: the same actions as the visible controls, without a

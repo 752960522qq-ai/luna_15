@@ -103,7 +103,8 @@ public final class MovementSmokeTest {
         getInstrumentation().runOnMainSync(() -> webView = activity.getTestWebView());
         try {
             JSONObject initial = waitFor("待机", 120000);
-            assertEquals("Three animation clips loaded", 3, initial.getJSONArray("animations").length());
+            assertEquals("Four animation clips loaded", 4, initial.getJSONArray("animations").length());
+            assertEquals("Closer third-person camera", 3.5, initial.getDouble("cameraDistance"), .001);
             assertTrue("WebGL2 renderer running", initial.getInt("frames") > 0);
             assertEquals("Model loaded through offline HTTPS assets", "appassets.androidplatform.net",
                 initial.getString("host"));
@@ -127,11 +128,21 @@ public final class MovementSmokeTest {
             touch(start, MotionEvent.ACTION_UP, forward);
             JSONObject stopped = waitFor("待机", 20000);
             assertTrue("Release clears movement", stopped.getDouble("speed") < .035);
+            float[] aimButton = point("aim", .5);
+            long aimStart = SystemClock.uptimeMillis();
+            touch(aimStart, MotionEvent.ACTION_DOWN, aimButton);
+            touch(aimStart, MotionEvent.ACTION_UP, aimButton);
+            JSONObject aiming = waitFor("瞄准待机", 20000);
+            assertTrue("Native touch selects rifle aim idle", aiming.getBoolean("aiming"));
+            SystemClock.sleep(1200);
+            assertTrue("Aim clip receives the stationary weight",
+                snapshot().getJSONObject("weights").getDouble("Rifle_Aim_Idle") > .99);
             evaluate("document.getElementById('foot-view').click()");
             assertTrue("Foot view control", snapshot().getBoolean("footView"));
             evaluate("document.getElementById('foot-view').click();document.getElementById('reset').click()");
             JSONObject reset = snapshot();
             assertFalse("Reset returns walking mode", reset.getBoolean("running"));
+            assertFalse("Reset clears aim selection", reset.getBoolean("aiming"));
             assertEquals(0, reset.getJSONObject("position").getDouble("x"), .001);
             assertEquals(0, reset.getJSONObject("position").getDouble("z"), .001);
             Bitmap bitmap = getInstrumentation().getUiAutomation().takeScreenshot();

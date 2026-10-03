@@ -16,9 +16,12 @@ json_length, chunk = struct.unpack_from('<II', data, 12)
 assert chunk == 0x4e4f534a
 gltf = json.loads(data[20:20 + json_length])
 clips = {clip['name']: clip for clip in gltf['animations']}
-assert set(clips) == {'Idle_Heels', 'Walk_Heels', 'Run_Heels'}
-assert clips['Walk_Heels']['extras']['sourceFile'] == 'Female Walk.fbx'
-assert clips['Walk_Heels']['extras']['inPlace'] is True
+sources = {'Idle_Heels':'Idle.fbx', 'Walk_Heels':'Female Walk.fbx',
+    'Run_Heels':'Running.fbx', 'Rifle_Aim_Idle':'Rifle Aiming Idle.fbx'}
+assert set(clips) == set(sources)
+for name, file in sources.items():
+    assert clips[name]['extras']['sourceFile'] == file
+    assert clips[name]['extras']['inPlace'] is True
 
 refs = 0
 for path in WEB.rglob('*.js'):

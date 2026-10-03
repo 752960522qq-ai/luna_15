@@ -1,12 +1,17 @@
 // Pure movement state. Speeds are metres/second; forward is the model's +Z.
-export const MOTION = Object.freeze({ walkSpeed: .95, runSpeed: 2.4, walkPeriod: 1.166666627, runPeriod: .66, deadZone: .10, arenaRadius: 22 });
+export const MOTION = Object.freeze({ walkSpeed: .95, runSpeed: 2.4, walkPeriod: 1.166666627, runPeriod: .7, deadZone: .10, arenaRadius: 22 });
 export class MovementController {
-  constructor() { this.walkStride=MOTION.walkSpeed*MOTION.walkPeriod; this.reset(); }
+  constructor() { this.walkStride=MOTION.walkSpeed*MOTION.walkPeriod; this.runStride=MOTION.runSpeed*MOTION.runPeriod; this.reset(); }
   setWalkReference(stride) {
     if(!Number.isFinite(stride)||stride<=0)throw new Error('Walk stride must be a positive distance');
     this.walkStride=stride;
   }
-  reset() { this.x=0; this.z=0; this.vx=0; this.vz=0; this.yaw=0; this.phase=0; this.runMix=0; this.moveMix=0; this.elapsed=0; }
+  setRunReference(stride) {
+    if(!Number.isFinite(stride)||stride<=0)throw new Error('Run stride must be a positive distance');
+    this.runStride=stride;
+  }
+  setAim(enabled) { this.aiming=!!enabled; }
+  reset() { this.x=0; this.z=0; this.vx=0; this.vz=0; this.yaw=0; this.phase=0; this.runMix=0; this.moveMix=0; this.aimMix=0; this.aiming=false; this.elapsed=0; }
   update(dt, input, cameraYaw, running) {
     dt=Math.min(Math.max(dt,0),.05); this.elapsed+=dt;
     let ix=Number.isFinite(input.x)?input.x:0, iz=Number.isFinite(input.forward)?input.forward:0;
@@ -41,10 +46,12 @@ export class MovementController {
     this.runMix+=(runTarget-this.runMix)*(1-Math.exp(-dt*9));
     const moveTarget=Math.min(1,speed/.22);
     this.moveMix+=(moveTarget-this.moveMix)*(1-Math.exp(-dt*12));
-    const stride=this.walkStride*(1-this.runMix)+MOTION.runSpeed*MOTION.runPeriod*this.runMix;
+    this.aimMix+=((this.aiming?1:0)-this.aimMix)*(1-Math.exp(-dt*10));
+    const stride=this.walkStride*(1-this.runMix)+this.runStride*this.runMix;
     this.phase=(this.phase+dt*speed/stride)%1;
   }
   get speed(){return Math.hypot(this.vx,this.vz);}
-  get state(){return this.speed<.035?"待机":this.runMix>.48?"跑步":"走路";}
-  snapshot(){return {state:this.state,speed:Number(this.speed.toFixed(3)),position:{x:Number(this.x.toFixed(3)),z:Number(this.z.toFixed(3))},phase:this.phase};}
+  get state(){return this.speed<.035?(this.aiming?"瞄准待机":"待机"):this.runMix>.48?"跑步":"走路";}
+  get weights(){return {Idle_Heels:(1-this.moveMix)*(1-this.aimMix),Rifle_Aim_Idle:(1-this.moveMix)*this.aimMix,Walk_Heels:this.moveMix*(1-this.runMix),Run_Heels:this.moveMix*this.runMix};}
+  snapshot(){return {state:this.state,aiming:this.aiming,speed:Number(this.speed.toFixed(3)),position:{x:Number(this.x.toFixed(3)),z:Number(this.z.toFixed(3))},phase:this.phase};}
 }

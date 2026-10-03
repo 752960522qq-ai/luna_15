@@ -80,8 +80,8 @@ for anim in doc["animations"]:
                            "stance_clearance_range_m": [min(stance_values), max(stance_values)]})
 
 # Diagnostic projections keep focus on the motion skeleton and actual shoes.
-fig, axes = plt.subplots(2, 5, figsize=(16, 8), facecolor="#101b27")
-samples = [(0, 0), (1, 0), (1, .25), (1, .5), (2, .25)]
+fig, axes = plt.subplots(2, 6, figsize=(18, 8), facecolor="#101b27")
+samples = [(0, 0), (1, 0), (1, .25), (2, 0), (2, .25), (3, .25)]
 chains = [["COG", "spine_0", "spine_1", "spine_2", "neck_0", "neck_1", "head"]]
 for side in ["l", "r"]:
     chains += [["hips", f"{side}_leg_femur", f"{side}_leg_tibia", f"{side}_leg_ankle", f"{side}_leg_ball"],

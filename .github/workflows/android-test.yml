@@ -29,6 +29,7 @@ jobs:
           python3 scripts/prepare_assets.py
           python3 scripts/check_web.py | tee reports/offline-assets.json
           node scripts/check_movement.mjs | tee reports/movement.json
+          node scripts/check_runtime.mjs | tee reports/animation-runtime.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -51,11 +52,11 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee reports/package.txt
           python3 scripts/check_apk.py "$APK" | tee reports/apk.json
           mkdir -p artifacts
-          cp "$APK" artifacts/luna15-heel-motion-test-v1.apk
+          cp "$APK" artifacts/luna15-heel-motion-test-v2.apk
           cp android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk artifacts/instrumentation.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: luna15-heel-motion-test-v1
+          name: luna15-heel-motion-test-v2
           path: |
             artifacts/*.apk
             reports/
@@ -69,7 +70,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: luna15-heel-motion-test-v1
+          name: luna15-heel-motion-test-v2
           path: download
       - name: Enable KVM
         run: |
@@ -83,11 +84,12 @@ jobs:
           arch: x86_64
           target: google_apis
           profile: pixel_2
-          emulator-options: -no-window -gpu swiftshader -noaudio -no-boot-anim -camera-back none -skin 540x960 -dpi 240 -memory 4096 -no-snapshot-save
+          emulator-options: -no-window -gpu swiftshader -noaudio -no-boot-anim -camera-back none -skin 540x960 -memory 4096 -no-snapshot-save
           disable-animations: true
           script: |
             mkdir -p reports
-            adb install download/artifacts/luna15-heel-motion-test-v1.apk
+            adb shell wm density 240
+            adb install download/artifacts/luna15-heel-motion-test-v2.apk
             adb install download/artifacts/instrumentation.apk
             adb shell svc wifi disable
             adb shell svc data disable

@@ -1,8 +1,9 @@
-"""Replace only Walk_Heels with the supplied Female Walk FBX motion.
+"""Retarget a supplied FBX motion onto the existing high-heel character.
 
 The source JSON is the bind skeleton and animation tracks exported by
 Three.js FBXLoader 0.180.0. No source meshes/materials are imported.
-Target meshes, skins, Idle_Heels and Run_Heels remain unchanged.
+Only the named animation changes; all other clips, meshes and skins remain.
+The optional fifth argument is Idle_Heels, Run_Heels or Rifle_Aim_Idle.
 """
 import copy
 import json
@@ -75,10 +76,13 @@ def read_glb(path):
     return json.loads(b[20:20+n]), b[28+n:]
 
 
-def main(target_path, source_path, output_path, report_path):
+def main(target_path, source_path, output_path, report_path, clip_name="Walk_Heels"):
+    assert clip_name in {"Walk_Heels", "Run_Heels", "Idle_Heels", "Rifle_Aim_Idle"}
     doc, binary = read_glb(target_path)
     rig = Rig(copy.deepcopy(doc), binary)
     source = SourceMotion(source_path)
+    source_name = source.data.get("sourceFile", "Female Walk.fbx")
+    locomotion = clip_name in {"Walk_Heels", "Run_Heels"}
     source_h = source.id("Hips")
     first, last = source.sample(0), source.sample(1)
     drift = last[source_h][:3, 3] - first[source_h][:3, 3]
@@ -98,7 +102,7 @@ def main(target_path, source_path, output_path, report_path):
         low_sole = min(foot[1]-source.rest_world[source.id("LeftFoot")][1,3], toe[1]-source.rest_world[source.id("LeftToeBase")][1,3])
         if low_sole < .8 and foot[1] < source.rest_world[source.id("LeftFoot")][1, 3]+2:
             scores.append((float(foot[2] - hip[2]), phase))
-    phase_offset = max(scores)[1]
+    phase_offset = max(scores)[1] if locomotion and scores else 0.
 
     # source name, target name, source child, target child
     pairs = [("Hips", "hips", None, None),
@@ -167,7 +171,7 @@ def main(target_path, source_path, output_path, report_path):
         rig.rotation(ankle, ankle_rotation)
 
     frames, pelvis_adjustments, contact_masks = [], [], []
-    frame_count = 72
+    frame_count = max(72, int(round(source.period * 30)))
     for frame in range(frame_count+1):
         phase = frame/frame_count
         src_phase = (phase+phase_offset) % 1
@@ -234,8 +238,8 @@ def main(target_path, source_path, output_path, report_path):
         return len(doc["accessors"])-1
     time_id=accessor(np.linspace(0,source.period,frame_count+1),"SCALAR")
     stride=float(np.linalg.norm(drift[[0,2]])*metres_per_source_unit)
-    anim={"name":"Walk_Heels","channels":[],"samplers":[],"extras":{
-        "inPlace":True,"loop":True,"sourceFile":"Female Walk.fbx","sourceClip":source.clip["name"],
+    anim={"name":clip_name,"channels":[],"samplers":[],"extras":{
+        "inPlace":True,"loop":True,"sourceFile":source_name,"sourceClip":source.clip["name"],
         "sourceDuration":source.period,"sourcePhaseOffset":float(phase_offset),
         "referenceStrideDistance":stride,"referenceSpeed":stride/source.period,
         "footwear":"high-heels","toeMotion":"target shoe bind pose retained",
@@ -256,16 +260,19 @@ def main(target_path, source_path, output_path, report_path):
         if "matrix" in n:
             mat=rig.rest[node_id];n.pop("matrix");n["translation"]=mat[:3,3].tolist()
             n["rotation"]=Rot.from_matrix(mat[:3,:3]).as_quat().tolist();n["scale"]=[1,1,1]
-    index=next(i for i,a in enumerate(doc["animations"]) if a["name"]=="Walk_Heels")
-    doc["animations"][index]=anim
-    doc["extras"]["locomotion"].update(walkPeriod=source.period,walkStride=stride,walkSource="Female Walk.fbx")
+    index=next((i for i,a in enumerate(doc["animations"]) if a["name"]==clip_name),None)
+    if index is None:doc["animations"].append(anim)
+    else:doc["animations"][index]=anim
+    prefix = {"Walk_Heels":"walk", "Run_Heels":"run", "Idle_Heels":"idle", "Rifle_Aim_Idle":"aim"}[clip_name]
+    doc["extras"]["locomotion"].update({prefix+"Period":source.period,prefix+"Source":source_name})
+    if locomotion:doc["extras"]["locomotion"][prefix+"Stride"] = stride
     doc["buffers"]=[{"byteLength":len(new_binary)}]
     jb=json.dumps(doc,separators=(",",":"),ensure_ascii=False).encode();jb+=b" "*((-len(jb))%4)
     new_binary.extend(b"\x00"*((-len(new_binary))%4))
     total=12+8+len(jb)+8+len(new_binary)
     result=struct.pack("<III",0x46546c67,2,total)+struct.pack("<II",len(jb),0x4e4f534a)+jb+struct.pack("<II",len(new_binary),0x004e4942)+new_binary
     Path(output_path).write_bytes(result)
-    report={"sourceFile":"Female Walk.fbx","sourceDuration":source.period,"sourceBoneMappings":len(mappings),
+    report={"clip":clip_name,"sourceFile":source_name,"sourceDuration":source.period,"sourceBoneMappings":len(mappings),
             "phaseOffset":float(phase_offset),"metresPerSourceUnit":metres_per_source_unit,
             "strideDistance":stride,"referenceSpeed":stride/source.period,"frames":frame_count+1,
             "tracks":len(anim["channels"]),"maximumPelvisIKCorrectionM":max(pelvis_adjustments),"outputBytes":len(result)}
