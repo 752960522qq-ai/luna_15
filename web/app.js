@@ -13,7 +13,9 @@ import {LOCATIONS} from './life-data.js';
 import {MobileControls} from './controls.js';
 import {GameUI} from './game-ui.js';
 import {persistentStorage} from './storage.js';
+import {installTouchButtons} from './touch-buttons.js';
 
+installTouchButtons();
 const $=id=>document.getElementById(id),player=PlayerState;
 const canvas=$('scene'),controller=new MovementController(),actor=new THREE.Group();
 const cameraState={yaw:.3,pitch:.22,foot:false};

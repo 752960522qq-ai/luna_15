@@ -152,8 +152,10 @@ public final class MovementSmokeTest {
         visualReady();
     }
     private void click(String action, String value) throws Exception {
-        evaluate("document.querySelector('[data-action=\"" + action + "\"]"
-            + (value == null ? "" : "[data-value=\"" + value + "\"]") + "').click()");
+        String result = evaluate("(()=>{const b=document.querySelector('[data-action=\"" + action + "\"]"
+            + (value == null ? "" : "[data-value=\"" + value + "\"]")
+            + "');if(!b||b.disabled)return false;b.click();return true;})()");
+        assertEquals("Available UI action " + action + " / " + value, "true", result);
     }
     private void teleport(String area, double x, double z) throws Exception {
         evaluate("window.__lifeTest.teleport('" + area + "'," + x + "," + z + ")");
@@ -178,7 +180,11 @@ public final class MovementSmokeTest {
             assertEquals(2.2, initial.getDouble("cameraDistance"), .001);
             assertEquals("appassets.androidplatform.net", initial.getString("host"));
             // CI uses a software GPU; exercise the actual mobile quality setting.
-            tap("main-settings"); click("quality", "low"); tap("close-panel");
+            tap("main-settings");
+            assertEquals("settings", snapshot().getString("modal"));
+            click("quality", "low");
+            assertEquals("low", snapshot().getJSONObject("player").getJSONObject("settings").getString("quality"));
+            tap("close-panel");
             tap("new-game");
             if ("new-confirm".equals(snapshot().optString("modal"))) click("new", null);
             waitForMode("play");

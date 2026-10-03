@@ -34,6 +34,7 @@
 - `web/avatar.js`：两个主角版本、四动画混合、脚底接地与测试服装。
 - `web/world-props.js`：安全屋、互动标记、路灯。
 - `web/controls.js`：摇杆/镜头/操作按钮独立多指与键盘控制。
+- `web/touch-buttons.js`：菜单/弹窗触摸释放触发、拖动取消和兼容 click 去重；保留鼠标与键盘。
 - `web/game-ui.js`：菜单、HUD、商店、任务、衣柜、对话、二维地图。
 - `web/assets/jill-high-heels.glb`：独立原鞋对，单 mesh、不含身体或骨架，保留原材质。
 - `models/jill-barefoot-locomotion.glb.gz`、`barefoot-manifest.json`、`life-assets-manifest.json`：默认主角派生资源与校验。
