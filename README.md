@@ -8,6 +8,8 @@ Three.js + Android WebView 的离线开放世界生活原型。主菜单进入�
 
 GitHub Actions 附件 `luna15-life-v1-test` 中的 `luna15-life-v1-test.apk` 是测试安装包。应用名称「Luna 城市生活」，包名仍为 `com.luna.heelmotion`，固定测试签名，可覆盖原测试版本。Android 8.0 及以上，系统 WebView 需支持 WebGL 2。全部资源内置，无网络或存储权限。
 
+已验证安装包对应 [代码 83a34fe](https://github.com/752960522qq-ai/luna_15/commit/83a34fe107330744f2cf7c02be324f8eb721c728)；[成功构建与断网模拟器测试](https://github.com/752960522qq-ai/luna_15/actions/runs/37162484484) 包含可下载附件。包大小约 106 MiB；校验值、文件清单和已知问题见 [修改报告](docs/life-v1.md)。
+
 - 左下摇杆移动；右侧空白区域拖动镜头；右下跑步、瞄准和接近物体后出现的互动按钮。
 - 公寓任务板或街口阿岚可接任务；服装店店员阿晴提供新生活入门服装。
 - 公寓衣柜可试穿四个装束，也可按五个部位搭配。公寓床铺可跳转到 00、06、12、18 点。
