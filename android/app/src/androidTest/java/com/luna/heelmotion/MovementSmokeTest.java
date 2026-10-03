@@ -60,7 +60,7 @@ public final class MovementSmokeTest {
         do {
             value = snapshot();
             if (mode.equals(value.optString("mode"))) return value;
-            SystemClock.sleep(200);
+            SystemClock.sleep(500);
         } while (SystemClock.uptimeMillis() < end);
         fail("Did not enter " + mode + "; last tap " + lastNativeTap
             + "; input " + evaluate("JSON.stringify(window.__nativeTapEvents)") + ": " + value);
@@ -72,7 +72,7 @@ public final class MovementSmokeTest {
         do {
             value = snapshot();
             if (value.optBoolean("loaded") && value.optInt("frames") > 0 && state.equals(value.optString("state"))) return value;
-            SystemClock.sleep(200);
+            SystemClock.sleep(500);
         } while (SystemClock.uptimeMillis() < end);
         fail("Did not reach " + state + ": " + value);
         return value;
@@ -84,7 +84,7 @@ public final class MovementSmokeTest {
             value = snapshot();
             JSONObject weights = value.optJSONObject("weights");
             if (weights != null && weights.optDouble(clip) >= minimum) return;
-            SystemClock.sleep(200);
+            SystemClock.sleep(500);
         } while (SystemClock.uptimeMillis() < end);
         fail("Animation weight did not reach " + minimum + " for " + clip + ": " + value);
     }
@@ -177,6 +177,8 @@ public final class MovementSmokeTest {
             assertEquals(8, initial.getJSONArray("npcs").length());
             assertEquals(2.2, initial.getDouble("cameraDistance"), .001);
             assertEquals("appassets.androidplatform.net", initial.getString("host"));
+            // CI uses a software GPU; exercise the actual mobile quality setting.
+            tap("main-settings"); click("quality", "low"); tap("close-panel");
             tap("new-game");
             if ("new-confirm".equals(snapshot().optString("modal"))) click("new", null);
             waitForMode("play");
@@ -186,20 +188,20 @@ public final class MovementSmokeTest {
             long touchStart = SystemClock.uptimeMillis();
             touch(touchStart, MotionEvent.ACTION_DOWN, center);
             touch(touchStart, MotionEvent.ACTION_MOVE, forward);
-            JSONObject walking = waitFor("走路", 20000);
+            JSONObject walking = waitFor("走路", 90000);
             assertTrue(walking.getDouble("speed") > .035);
             float[] runButton = point("run", .5);
             secondTouch(touchStart, MotionEvent.ACTION_POINTER_DOWN, forward, runButton);
             SystemClock.sleep(150);
             secondTouch(touchStart, MotionEvent.ACTION_POINTER_UP, forward, runButton);
-            JSONObject running = waitFor("跑步", 20000);
+            JSONObject running = waitFor("跑步", 90000);
             assertTrue("Second finger toggles run", running.getBoolean("running"));
             assertTrue(running.getDouble("speed") > .95);
             touch(touchStart, MotionEvent.ACTION_UP, forward);
-            waitFor("待机", 20000);
+            waitFor("待机", 90000);
             tap("aim");
-            waitFor("瞄准待机", 20000);
-            waitForWeight("Rifle_Aim_Idle", .99, 20000);
+            waitFor("瞄准待机", 90000);
+            waitForWeight("Rifle_Aim_Idle", .99, 90000);
             tap("aim");
             assertTrue("Feet contact the scaled city", snapshot().getDouble("shoeClearance") >= -.002);
 
