@@ -1,0 +1,650 @@
+{
+  "version": 1,
+  "units": "metres",
+  "upAxis": "Y",
+  "forwardAxis": "+Z",
+  "characterCount": 11,
+  "animationCount": 33,
+  "jillReference": {
+    "path": "assets/jill-heels-locomotion.glb",
+    "heightMetres": 1.7302537,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "sha256": "f6e98e172b8dd88fe79801a8239749a5c0fd8c98ea5d101c1b43ff43cb15604b"
+  },
+  "sourceFiles": {
+    "male_citizen_dafuq.glb": "d3e4aabfc70d865526b48a3afa9de211a9fb11a27c1177f00b6cd1968529cca7",
+    "Idle (1).fbx": "9c366a95e746b6296641fd62637cf9989cf2003bcffa8d94367640344c6a318f",
+    "Walking (1).fbx": "af0fb69fc96feab4c1fef9defd3036f728ba34487c28d58d0b83c0d125416ba2",
+    "Talking.fbx": "4f33eb3b5fe7cc662f0e6baa7dc93b9d6053c6e55ba7903e99481c85bf2c9504"
+  },
+  "sourceAttribution": {
+    "author": "photon (that one larry) (https://sketchfab.com/Professor_E12)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/male-citizen-dafuq-dad77ada9d1640c1a9792a53d2bc2a2b",
+    "title": "male citizen dafuq"
+  },
+  "stage": "models and baked animations only; no NPC runtime logic",
+  "textureProcessing": "Texture dimensions capped at 1024 pixels on the longest edge for mobile use. RGB base-color maps encoded as JPEG quality 95, 4:4:4; alpha/specular/transmission maps and normal maps remain PNG. Original maps at or below 1024 pixels retain their lossless bytes except RGB base-color maps.",
+  "citizens": [
+    {
+      "id": "male-citizen-01",
+      "path": "assets/npcs/male-citizen-01.glb",
+      "heightMetres": 1.779999847135861,
+      "jillHeightRatio": 1.028750782117016,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 8,
+      "triangleCount": 7643,
+      "byteLength": 5598772,
+      "sha256": "dff7e748e999f108c3b39e857180137c24fd7a18287bd2732ed2b28615f3f12a",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 5.88001559719928e-14,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.014040024483677055,
+            0.014419834605660157
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050666665,
+          "strideDistanceMetres": 1.756982972126774,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011573313103372604,
+            0.03748166050304416
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.0002448394734068421,
+          "strideDistanceMetres": 1.984168216714768e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.015177879556918135,
+            0.016563391004342273
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-02",
+      "path": "assets/npcs/male-citizen-02.glb",
+      "heightMetres": 1.7708463960684406,
+      "jillHeightRatio": 1.0234605457387207,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 7,
+      "triangleCount": 6798,
+      "byteLength": 3425624,
+      "sha256": "ebbdb0532b6d485c8167d0b56c767d5d56fa100bef5a9559097e62c0d3c2b253",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 3.42446258909974e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.014040219407269895,
+            0.014420029130334598
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050672463,
+          "strideDistanceMetres": 1.7569832120220445,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011573218325674744,
+            0.03748186023555844
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.0002448394734054806,
+          "strideDistanceMetres": 1.9841684876294996e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.015178078401763235,
+            0.016563595964784836
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-03",
+      "path": "assets/npcs/male-citizen-03.glb",
+      "heightMetres": 1.7712847554691789,
+      "jillHeightRatio": 1.0237138955224767,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 9,
+      "triangleCount": 7888,
+      "byteLength": 5355024,
+      "sha256": "ea5dae9638643b1e5149d3d7ae15c1491b5b8fce7d47f25aa4d5aab3936757c0",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 3.4512347790756574e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.014040299954250563,
+            0.014420109855838213
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050713911,
+          "strideDistanceMetres": 1.756983212022085,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011573225062779028,
+            0.037481941780176935
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.00024483947342222916,
+          "strideDistanceMetres": 1.9841684876295453e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.015178159206857875,
+            0.01656367701197383
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-04",
+      "path": "assets/npcs/male-citizen-04.glb",
+      "heightMetres": 1.7912991184176796,
+      "jillHeightRatio": 1.0352811951320662,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 9,
+      "triangleCount": 8923,
+      "byteLength": 4302608,
+      "sha256": "3d2d6e949509057df26bf37e8e29f97e7372d8e400aa164238e1af1220576f7d",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 2.5522422941684106e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.013991137725248633,
+            0.01432089016236723
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050701931,
+          "strideDistanceMetres": 1.7569833719524721,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011099142961918503,
+            0.036762074556343505
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.00024483947340964125,
+          "strideDistanceMetres": 1.9841686682396003e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01504541238573658,
+            0.0164309356867836
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-05",
+      "path": "assets/npcs/male-citizen-05.glb",
+      "heightMetres": 1.7753726185006642,
+      "jillHeightRatio": 1.0260764756640395,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 7,
+      "triangleCount": 7144,
+      "byteLength": 4466136,
+      "sha256": "7b2f1b189b1d667bc62e347f1808dff829af54a764bfa592b74da1a8a78b1485",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 3.7189564934066205e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.014040309257240403,
+            0.014420120304646466
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050691247,
+          "strideDistanceMetres": 1.7569832120222881,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01157322030814804,
+            0.03748194642262278
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.0002448394734095197,
+          "strideDistanceMetres": 1.9841684876297752e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01517816753436146,
+            0.016563687700546538
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-06",
+      "path": "assets/npcs/male-citizen-06.glb",
+      "heightMetres": 1.7931156494619718,
+      "jillHeightRatio": 1.0363310591169212,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 7,
+      "triangleCount": 6510,
+      "byteLength": 4114776,
+      "sha256": "8f79bc597d8e8240a9f358940331ec68da500cfd7cfd8fa1924584b2373ff6ff",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 2.475934468320496e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01404027772623417,
+            0.014420090336865025
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050694396,
+          "strideDistanceMetres": 1.7569831320578546,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011573227019265914,
+            0.03748194027916785
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.00024483947341006224,
+          "strideDistanceMetres": 1.9841683973256058e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01517813897573685,
+            0.016563659124853723
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-07",
+      "path": "assets/npcs/male-citizen-07.glb",
+      "heightMetres": 1.773126852779922,
+      "jillHeightRatio": 1.0247785355291665,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 7,
+      "triangleCount": 6871,
+      "byteLength": 4230728,
+      "sha256": "123b8b3a996a4f495ac919d74e0f3be615776c6f4c22c29d1be7093c1fe2b197",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 2.812498893384707e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.014040316062885902,
+            0.01442012555248156
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050689461,
+          "strideDistanceMetres": 1.756982892161761,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011573245869987578,
+            0.03748201816154922
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.0002448394734206914,
+          "strideDistanceMetres": 1.9841681264099444e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.015178176956210862,
+            0.016563692390449705
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-08",
+      "path": "assets/npcs/male-citizen-08.glb",
+      "heightMetres": 1.785500857865431,
+      "jillHeightRatio": 1.0319300908678484,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 12,
+      "triangleCount": 10000,
+      "byteLength": 4724272,
+      "sha256": "13718e2a078a74c42739089566bbdd6232df8ebe090142cc7542b7833836f12f",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 3.537836098723119e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.013991063010267948,
+            0.014320813219043667
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050718829,
+          "strideDistanceMetres": 1.7569832919902963,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011099093347636133,
+            0.036762012158334995
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.0002448394734075985,
+          "strideDistanceMetres": 1.984168577937981e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.015045339352019137,
+            0.016430857120641452
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-09",
+      "path": "assets/npcs/male-citizen-09.glb",
+      "heightMetres": 1.7789730088130975,
+      "jillHeightRatio": 1.0281573209831005,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 7,
+      "triangleCount": 7241,
+      "byteLength": 5187356,
+      "sha256": "59738a3ee8277f3936b9114833370a83947e6ef84722ad8b7d84f55ce281f4d0",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 1.4731988482453594e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01399124166108446,
+            0.014320998470031671
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050705612,
+          "strideDistanceMetres": 1.7569832919875878,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011099197881722284,
+            0.0367622429852722
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.000244839473419779,
+          "strideDistanceMetres": 1.9841685779349223e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.015045523225645108,
+            0.016431057560178354
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-10",
+      "path": "assets/npcs/male-citizen-10.glb",
+      "heightMetres": 1.7929393002199447,
+      "jillHeightRatio": 1.0362291380853252,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 15,
+      "triangleCount": 10778,
+      "byteLength": 10508816,
+      "sha256": "4c040a878d137bb6ee32b7d76f90786363b349540766e46e5dc2ab95f720be82",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 2.8353671570477077e-13,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01403782957699165,
+            0.0144176382363684
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050681061,
+          "strideDistanceMetres": 1.7569832919879724,
+          "verticalGroundCorrectionRangeMetres": [
+            0.011570789292900202,
+            0.03747950267087008
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.0002448394734154703,
+          "strideDistanceMetres": 1.9841685779353564e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01517569005817651,
+            0.016561205834686697
+          ]
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-11",
+      "path": "assets/npcs/male-citizen-11.glb",
+      "heightMetres": 1.7912991567060517,
+      "jillHeightRatio": 1.0352812172608281,
+      "skinCount": 1,
+      "joints": 57,
+      "meshCount": 9,
+      "triangleCount": 8363,
+      "byteLength": 5486312,
+      "sha256": "8936ea819947aa142ea8aa759b337e1219350a9395f6914875a5a7b593fc412f",
+      "clips": [
+        {
+          "name": "Citizen_Idle",
+          "sourceFile": "Idle (1).fbx",
+          "durationSeconds": 8.333333015441895,
+          "frames": 251,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 5.0249288260570005e-14,
+          "strideDistanceMetres": 0.0,
+          "verticalGroundCorrectionRangeMetres": [
+            0.010234825535197556,
+            0.010974971940140327
+          ]
+        },
+        {
+          "name": "Citizen_Walk",
+          "sourceFile": "Walking (1).fbx",
+          "durationSeconds": 1.0333333015441895,
+          "frames": 32,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.005583374050727391,
+          "strideDistanceMetres": 1.7569832919877981,
+          "verticalGroundCorrectionRangeMetres": [
+            0.008522614654448722,
+            0.02888503093035011
+          ]
+        },
+        {
+          "name": "Citizen_Talk",
+          "sourceFile": "Talking.fbx",
+          "durationSeconds": 3.933333396911621,
+          "frames": 119,
+          "retargetedJoints": 52,
+          "inPlace": true,
+          "seamBeforeRoundingDegrees": 0.00024483947339429594,
+          "strideDistanceMetres": 1.98416857793516e-08,
+          "verticalGroundCorrectionRangeMetres": [
+            0.01115689691042496,
+            0.012881932537025072
+          ]
+        }
+      ]
+    }
+  ]
+}

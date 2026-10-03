@@ -4,6 +4,8 @@ Jill 模型、四段高跟鞋动画、城市街区、手机摇杆，以及可离
 走路使用 `Female Walk.fbx`；跑步、待机分别替换为 `Running.fbx`、`Idle.fbx`，新增 `Rifle Aiming Idle.fbx` 瞄准待机。
 当前 CCity 街区按用户要求缩至首轮场景的 0.45 倍，范围 251.1 × 105.3 米。人物保持原尺寸约 1.73 米，含建筑阻挡、地面高度采样与镜头防穿墙。城市更新只做预览，尚未打入 v2 APK。
 
+新增 11 个男性市民资源，已拆成独立 GLB，每个内置待机、走路、说话三个动画，身高约 1.77～1.79 米，与原尺寸 Jill 相适应。资源位于 `web/assets/npcs/`，后续 Android 构建会随网页资源一同收录。本次仅准备模型与动画资源，尚未接入 NPC 生成、巡逻或交互逻辑，也未生成新 APK；详见 [男性市民资源说明](docs/male-citizens.md)。
+
 ## 手机测试
 
 从 Actions 的 `luna15-heel-motion-test-v2` 构建附件下载 `luna15-heel-motion-test-v2.apk`。
@@ -29,6 +31,8 @@ Jill 模型、四段高跟鞋动画、城市街区、手机摇杆，以及可离
 | `scripts/` | 动作烘焙与替换脚本、资源和 APK 完整性检查、移动逻辑检查 |
 | `docs/animation-framework.md` | 动画来源、高跟鞋处理与框架说明 |
 | `docs/city-scene.md` | 城市尺度、资源处理、碰撞范围与素材署名 |
+| `web/assets/npcs/` | 11 个独立男性市民 GLB、33 段内置动画、尺寸与资源清单 |
+| `docs/male-citizens.md` | 男性市民动作映射、尺度、资源阶段与素材署名 |
 
 Android 使用 `WebViewAssetLoader` 从应用内资源加载 HTTPS 同源模块，避免 `file://` 的加载限制。
 所有模块使用相对路径，不依赖 import map、CDN 或在线网站。

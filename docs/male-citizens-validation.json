@@ -1,0 +1,515 @@
+{
+  "status": "passed",
+  "characters": 11,
+  "clips": 33,
+  "poseSamples": 2145,
+  "renderer": "Three.js 0.180.0 GLTFLoader + AnimationMixer",
+  "report": [
+    {
+      "id": "male-citizen-01",
+      "bindHeightMetres": 1.779999847135861,
+      "triangles": 7643,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999508816459796,
+          "maximumGroundClearanceMetres": 0.0010000352804462598,
+          "heightRangeMetres": [
+            1.7862539243781186,
+            1.7912937801605184
+          ],
+          "maximumWidthMetres": 0.609872814596707,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005138297195729676,
+          "maximumGroundClearanceMetres": 0.0055334811920884006,
+          "heightRangeMetres": [
+            1.7175036229284393,
+            1.7954372764111675
+          ],
+          "maximumWidthMetres": 0.7111978825999734,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.000987394858536942,
+          "maximumGroundClearanceMetres": 0.0010000673953528844,
+          "heightRangeMetres": [
+            1.7544433882958654,
+            1.7729421387622184
+          ],
+          "maximumWidthMetres": 0.9805930641619629,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-02",
+      "bindHeightMetres": 1.7708463960684406,
+      "triangles": 6798,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999466124245952,
+          "maximumGroundClearanceMetres": 0.0010000267322780657,
+          "heightRangeMetres": [
+            1.7777438200868283,
+            1.7816055235701667
+          ],
+          "maximumWidthMetres": 0.6099981131086198,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005138278897607873,
+          "maximumGroundClearanceMetres": 0.005533403639077495,
+          "heightRangeMetres": [
+            1.7097308173338333,
+            1.7868506747970927
+          ],
+          "maximumWidthMetres": 0.7031831546879175,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009874020616245597,
+          "maximumGroundClearanceMetres": 0.0010000197298193347,
+          "heightRangeMetres": [
+            1.7454392046293208,
+            1.7640513678323844
+          ],
+          "maximumWidthMetres": 0.9826021660982605,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-03",
+      "bindHeightMetres": 1.7712847554691789,
+      "triangles": 7888,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999374732673275,
+          "maximumGroundClearanceMetres": 0.0010000818644644149,
+          "heightRangeMetres": [
+            1.77809412085789,
+            1.7825630677785114
+          ],
+          "maximumWidthMetres": 0.6495796411765826,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005138811277199881,
+          "maximumGroundClearanceMetres": 0.0055334762926059575,
+          "heightRangeMetres": [
+            1.7103738407182734,
+            1.7871550449658926
+          ],
+          "maximumWidthMetres": 0.7191437308889543,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009873942862680292,
+          "maximumGroundClearanceMetres": 0.0010000213599999207,
+          "heightRangeMetres": [
+            1.7440579895158272,
+            1.7646514451272133
+          ],
+          "maximumWidthMetres": 0.9804782446273985,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-04",
+      "bindHeightMetres": 1.7912991184176796,
+      "triangles": 8923,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999400750401247,
+          "maximumGroundClearanceMetres": 0.0010000622553928643,
+          "heightRangeMetres": [
+            1.7975312420988216,
+            1.8013848622131596
+          ],
+          "maximumWidthMetres": 0.5989438698442082,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005050679125216812,
+          "maximumGroundClearanceMetres": 0.005334388106472935,
+          "heightRangeMetres": [
+            1.7289153150302914,
+            1.8045213454681184
+          ],
+          "maximumWidthMetres": 0.7096949892139763,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009878087208339912,
+          "maximumGroundClearanceMetres": 0.0010000497991586917,
+          "heightRangeMetres": [
+            1.7642499256144797,
+            1.7839602254435294
+          ],
+          "maximumWidthMetres": 0.9747603612702737,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-05",
+      "bindHeightMetres": 1.7753726185006642,
+      "triangles": 7144,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999268022973205,
+          "maximumGroundClearanceMetres": 0.00100006401675202,
+          "heightRangeMetres": [
+            1.7816837922995912,
+            1.78546357214867
+          ],
+          "maximumWidthMetres": 0.6164694782740475,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005138533356230691,
+          "maximumGroundClearanceMetres": 0.005533498790770398,
+          "heightRangeMetres": [
+            1.7144894090849698,
+            1.7913253523252621
+          ],
+          "maximumWidthMetres": 0.7086229328301574,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009873923883624292,
+          "maximumGroundClearanceMetres": 0.0010000255781737188,
+          "heightRangeMetres": [
+            1.7500617861091394,
+            1.7683767775521997
+          ],
+          "maximumWidthMetres": 0.9826021707420489,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-06",
+      "bindHeightMetres": 1.7931156494619718,
+      "triangles": 6510,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999417404127058,
+          "maximumGroundClearanceMetres": 0.0010000711163501604,
+          "heightRangeMetres": [
+            1.799286179372905,
+            1.8038486915018412
+          ],
+          "maximumWidthMetres": 0.6495792171566246,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005138531936738876,
+          "maximumGroundClearanceMetres": 0.005533488788680764,
+          "heightRangeMetres": [
+            1.7307451414908723,
+            1.8077917204713214
+          ],
+          "maximumWidthMetres": 0.7191434187889958,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009874164453375668,
+          "maximumGroundClearanceMetres": 0.001000074377833773,
+          "heightRangeMetres": [
+            1.7649766855079507,
+            1.7859319279230765
+          ],
+          "maximumWidthMetres": 0.9826015645052164,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-07",
+      "bindHeightMetres": 1.773126852779922,
+      "triangles": 6871,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.000999938334675387,
+          "maximumGroundClearanceMetres": 0.0010000574836589449,
+          "heightRangeMetres": [
+            1.7805456247029554,
+            1.7837909771569376
+          ],
+          "maximumWidthMetres": 0.6495799210229125,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005138402297363322,
+          "maximumGroundClearanceMetres": 0.0055334654567127314,
+          "heightRangeMetres": [
+            1.71364306879563,
+            1.791874177754369
+          ],
+          "maximumWidthMetres": 0.7191435508241093,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009873677036124889,
+          "maximumGroundClearanceMetres": 0.0010000123079186487,
+          "heightRangeMetres": [
+            1.7500510127963484,
+            1.7687930224571276
+          ],
+          "maximumWidthMetres": 0.9826015136555412,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-08",
+      "bindHeightMetres": 1.785500857865431,
+      "triangles": 10000,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999402692683467,
+          "maximumGroundClearanceMetres": 0.001000069417732308,
+          "heightRangeMetres": [
+            1.791778282520709,
+            1.7955976651570549
+          ],
+          "maximumWidthMetres": 0.6001036305517609,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005050598991771169,
+          "maximumGroundClearanceMetres": 0.005334333127291096,
+          "heightRangeMetres": [
+            1.7232835926206056,
+            1.8012780956261674
+          ],
+          "maximumWidthMetres": 0.7100567336654438,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009878342254476622,
+          "maximumGroundClearanceMetres": 0.001000065675211199,
+          "heightRangeMetres": [
+            1.7593790510639264,
+            1.7781805205140522
+          ],
+          "maximumWidthMetres": 0.9712760140262693,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-09",
+      "bindHeightMetres": 1.7789730088130975,
+      "triangles": 7241,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999344597537273,
+          "maximumGroundClearanceMetres": 0.0010000721235812696,
+          "heightRangeMetres": [
+            1.7856753120827853,
+            1.789634139846169
+          ],
+          "maximumWidthMetres": 0.6497616499797507,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0005050601076269853,
+          "maximumGroundClearanceMetres": 0.005334379134196763,
+          "heightRangeMetres": [
+            1.7179007256521577,
+            1.7945992854882231
+          ],
+          "maximumWidthMetres": 0.7191383130636617,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009878309045552574,
+          "maximumGroundClearanceMetres": 0.0010000741930782982,
+          "heightRangeMetres": [
+            1.7536571629129576,
+            1.772077650008263
+          ],
+          "maximumWidthMetres": 0.9735332068156946,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-10",
+      "bindHeightMetres": 1.7929393002199447,
+      "triangles": 10778,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999468863511156,
+          "maximumGroundClearanceMetres": 0.0010000508258881068,
+          "heightRangeMetres": [
+            1.7994153098329704,
+            1.8032482348912167
+          ],
+          "maximumWidthMetres": 0.6495783914815857,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.000513902598077362,
+          "maximumGroundClearanceMetres": 0.0055334675836545,
+          "heightRangeMetres": [
+            1.7311412791524512,
+            1.8070013181013118
+          ],
+          "maximumWidthMetres": 0.7191422451758351,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.000987422081387945,
+          "maximumGroundClearanceMetres": 0.001000077820378368,
+          "heightRangeMetres": [
+            1.764412242485347,
+            1.7858979605392873
+          ],
+          "maximumWidthMetres": 0.9826038216839706,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    },
+    {
+      "id": "male-citizen-11",
+      "bindHeightMetres": 1.7912991567060517,
+      "triangles": 8363,
+      "checks": [
+        {
+          "clip": "Citizen_Idle",
+          "duration": 8.333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009999368986739008,
+          "maximumGroundClearanceMetres": 0.001000058915001295,
+          "heightRangeMetres": [
+            1.7943473863835975,
+            1.797941864630853
+          ],
+          "maximumWidthMetres": 0.6164691931326974,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Walk",
+          "duration": 1.0333333015441895,
+          "samples": 65,
+          "minimumGroundClearanceMetres": -0.0003978996535295466,
+          "maximumGroundClearanceMetres": 0.0067392984394508675,
+          "heightRangeMetres": [
+            1.7239232936747704,
+            1.8028576368281657
+          ],
+          "maximumWidthMetres": 0.7120277089177636,
+          "horizontalLoopDriftMetres": 0
+        },
+        {
+          "clip": "Citizen_Talk",
+          "duration": 3.933333396911621,
+          "samples": 65,
+          "minimumGroundClearanceMetres": 0.0009873710275006727,
+          "maximumGroundClearanceMetres": 0.0010000441373524058,
+          "heightRangeMetres": [
+            1.7606777028837466,
+            1.7802113433522695
+          ],
+          "maximumWidthMetres": 0.9794138831234148,
+          "horizontalLoopDriftMetres": 0
+        }
+      ]
+    }
+  ]
+}
