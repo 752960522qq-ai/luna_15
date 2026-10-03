@@ -12,6 +12,7 @@ import {createHome,addCityProps,marker} from './world-props.js';
 import {LOCATIONS} from './life-data.js';
 import {MobileControls} from './controls.js';
 import {GameUI} from './game-ui.js';
+import {persistentStorage} from './storage.js';
 
 const $=id=>document.getElementById(id),player=PlayerState;
 const canvas=$('scene'),controller=new MovementController(),actor=new THREE.Group();
@@ -19,7 +20,7 @@ const cameraState={yaw:.3,pitch:.22,foot:false};
 let renderer,scene,camera,world,sampleCity,network,npcs,props,avatars,selectedAvatar,cityRoot;
 let ready=false,mode='loading',frames=0,groundY=0,actualCameraDistance=0,lastFrame=performance.now(),lastHud=0,autosave=0,visualTime=0,talking=null,previewCamera=null,settingsChanged=false;
 const home=createHome(),npcGroup=new THREE.Group(),propGroup=new THREE.Group();
-const saveSystem=new SaveSystem(localStorage),clock=new GameClock(player);
+const storage=persistentStorage(),saveSystem=new SaveSystem(storage),clock=new GameClock(player);
 let saved=saveSystem.load();if(saved)Object.assign(player.settings,saved.settings);
 const missions=new MissionSystem(player,m=>{ui.toast(`${m.name}完成 · +¥ ${m.reward}`);saveGame(false);});
 const shop=new ShopSystem(player,()=>{applyOutfit();missions.updateLocation();});
@@ -114,6 +115,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-lastFram
     if(running&&controller.speed>1.05){player.stamina=Math.max(0,player.stamina-dt*4.5);if(player.stamina===0)player.flags.exhausted=true;}else{player.stamina=Math.min(100,player.stamina+dt*8);if(player.stamina>=25)player.flags.exhausted=false;}
     groundY=ground(controller.x,controller.z);syncPosition();clock.update(dt);missions.updateLocation();npcs.update(dt);autosave+=dt;if(autosave>=15){saveGame(false);autosave=0;}
   }else{controller.update(dt,{x:0,forward:0},cameraState.yaw,false);}
+  if(mode==='play'&&ui.view==='dialog')npcs.update(dt,true);
   actor.position.set(controller.x,groundY,controller.z);actor.rotation.y=controller.yaw;selectedAvatar.update(controller.weights,controller.phase,controller.elapsed);actor.updateMatrixWorld(true);selectedAvatar.ground(actor,ground,groundY);
   props.markers.parcel.visible=!player.inventory.includes('parcel')&&!player.mission.completed.includes('delivery');
   lightTarget.set(controller.x,groundY,controller.z);sun.target.position.copy(lightTarget);sun.position.copy(lightTarget).add(offset);if(visualTime-lastLighting>.4)lighting();
@@ -128,7 +130,7 @@ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('图形�
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame(false);lastFrame=performance.now();});window.addEventListener('pagehide',()=>saveGame(false));window.addEventListener('blur',()=>saveGame(false));
 
 if(new URLSearchParams(location.search).get('diagnostics')==='1'){
-  const snapshot=()=>({...controller.snapshot(),stateId:controller.stateId,running:controls.run,stick:{x:controls.stick.x,forward:controls.stick.forward,pointer:controls.stick.pointer},loaded:ready,mode,animations:selectedAvatar?Object.keys(selectedAvatar.actions):[],weights:controller.weights,frames,footView:cameraState.foot,cameraDistance:player.settings.cameraDistance,actualCameraDistance,host:location.hostname,characterScale:actor.scale.toArray(),groundY,shoeClearance:selectedAvatar?.clearance??null,player:JSON.parse(JSON.stringify(player)),modal:ui.view,interaction:interactions.closest?.id||null,city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null,navigationNodes:network?.nodes.length||0,npcs:npcs?.snapshot()||[],npcDebug:npcs?.debug,drawCalls:renderer?.info.render.calls||0,saveError:saveSystem.error,cameraPosition:camera?.position.toArray()});
+  const snapshot=()=>({...controller.snapshot(),stateId:controller.stateId,running:controls.run,stick:{x:controls.stick.x,forward:controls.stick.forward,pointer:controls.stick.pointer},loaded:ready,mode,animations:selectedAvatar?Object.keys(selectedAvatar.actions):[],weights:controller.weights,frames,footView:cameraState.foot,cameraDistance:player.settings.cameraDistance,actualCameraDistance,host:location.hostname,characterScale:actor.scale.toArray(),groundY,shoeClearance:selectedAvatar?.clearance??null,player:JSON.parse(JSON.stringify(player)),modal:ui.view,interaction:interactions.closest?.id||null,city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null,navigationNodes:network?.nodes.length||0,npcs:npcs?.snapshot()||[],npcDebug:npcs?.debug,drawCalls:renderer?.info.render.calls||0,saveError:saveSystem.error,storageBackend:storage.backend||'localStorage',saveAvailable:!!saveSystem.load(),continueDisabled:$('continue-game').disabled,cameraPosition:camera?.position.toArray()});
   window.__heelMotionSnapshot=snapshot;window.__lifeSnapshot=snapshot;
   window.__heelMotionPreviewCamera=value=>{if(value===null){previewCamera=null;return;}for(const k of ['position','target'])if(!Array.isArray(value?.[k])||value[k].length!==3||!value[k].every(Number.isFinite))throw new Error('Expected camera vectors');previewCamera=value;};
   // Only enabled in an explicitly requested diagnostic launch. Business flows

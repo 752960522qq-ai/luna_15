@@ -172,6 +172,7 @@ public final class MovementSmokeTest {
         try {
             JSONObject initial = waitFor("待机", 180000);
             assertEquals("main", initial.getString("mode"));
+            assertEquals("android-shared-preferences", initial.getString("storageBackend"));
             assertEquals(4, initial.getJSONArray("animations").length());
             assertEquals(8, initial.getJSONArray("npcs").length());
             assertEquals(2.2, initial.getDouble("cameraDistance"), .001);
@@ -218,9 +219,12 @@ public final class MovementSmokeTest {
             assertEquals("new-life", player.getJSONObject("mission").getJSONArray("completed").getString(0));
             assertEquals("night", player.getJSONObject("outfit").getString("preset"));
             tap("pause"); click("settings", null); click("save", null); tap("close-panel");
+            assertTrue("Saved state validates before restart", snapshot().getBoolean("saveAvailable"));
             getInstrumentation().runOnMainSync(() -> activity.finish());
             start();
             waitFor("待机", 180000);
+            assertTrue("Native save is readable in a new WebView", snapshot().getBoolean("saveAvailable"));
+            assertFalse("Continue is enabled", snapshot().getBoolean("continueDisabled"));
             tap("continue-game");
             waitForMode("play");
             JSONObject restored = snapshot().getJSONObject("player");

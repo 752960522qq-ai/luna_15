@@ -19,7 +19,7 @@
 | 安全屋 | 独立 6×6 m 简易室内，门、床、衣柜、任务板和保存点，有墙与家具碰撞。 |
 | 时间/昼夜 | 连续流逝，现实每秒 1.5 个游戏分钟；00/06/12/18 时间跳转；天空、主光、环境光连续变化，夜间灯泡和附近两盏点光源；商店及夜生活受时间限制。 |
 | 手机 UI | 横屏 HP/体力、金钱/时间、目标、左摇杆、右镜头和三操作按钮；指针独立归属。暂停含继续、二维地图、任务、衣柜、设置、返回主菜单。 |
-| 存档 | WebView HTTPS 同源 localStorage；带版本、校验、数据清洗的交替双槽。保存位置、服装与拥有物品、钱、任务、时间；损坏时用上一份。每 15 秒/切后台/关键进度及手动保存。 |
+| 存档 | Android 使用私有 SharedPreferences，成功提示前同步提交；浏览器使用 localStorage，两者共用版本、校验、数据清洗和交替双槽格式。兼容迁移旧 WebView 存档。保存位置、服装与拥有物品、钱、任务、时间；损坏时用上一份。每 15 秒/切后台/关键进度及手动保存。 |
 | 性能 | 0～40 m 完整 AI，40～80 m 每 0.25 s，80 m 外隐藏/停 AI；共享 NPC 资源，保守视锥裁剪；原城市 22 个静态 mesh / 31,050 三角形；1024 阴影图/约 26 m 范围/至多两个附近 NPC 投影；均衡像素比上限 1.35，流畅档关闭阴影/像素比 1。 |
 
 ## 主要新增文件
@@ -27,6 +27,7 @@
 - `web/player-state.js`：唯一持久玩家状态。
 - `web/life-data.js`：地点、商品、装束、任务和 8 个 NPC 数据。
 - `web/game-systems.js`：时间、任务、交易、衣柜和双槽存档。
+- `web/storage.js`：Android 原生持久存储适配、浏览器存储与旧存档迁移。
 - `web/interaction.js`：统一区域/距离交互接口。
 - `web/navigation.js`：障碍、导航点网络、路径搜索及路径线段检查。
 - `web/npcs.js`：共享模型克隆、NPC 状态机、距离更新和对话。
@@ -47,6 +48,7 @@
 - `web/index.html`、`style.css`：主菜单、横屏 HUD 与弹窗重做。
 - `scripts/prepare_assets.py`、`check_web.py`：新增默认主角资源恢复、校验和离线检查。
 - `android/app/build.gradle`、`AndroidManifest.xml`：测试版版本 3 / 0.3.0-life-v1、应用名；包名和原签名保持兼容。
+- `android/app/src/main/java/com/luna/heelmotion/MainActivity.java`：横屏 WebView 视口、触摸焦点和受限双槽原生存档接口。
 - `android/app/src/androidTest/java/com/luna/heelmotion/MovementSmokeTest.java`：真实 WebView 主菜单、原生双指、任务、购买、换装、保存并重启 Activity 恢复。
 - `.github/workflows/android-test.yml`：增加生活系统检查、V1 APK、断网模拟器流程与报告附件。
 - `.gitignore`、`README.md`、本报告。

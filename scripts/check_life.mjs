@@ -10,6 +10,8 @@ import {cityWorld} from '../web/city.js';
 import {Avatar} from '../web/avatar.js';
 import {MovementController,CHARACTER_STATES} from '../web/movement.js';
 import {LOCATIONS,NPCS} from '../web/life-data.js';
+import {persistentStorage} from '../web/storage.js';
+import {NPCManager} from '../web/npcs.js';
 const loader=new GLTFLoader();loader.register(()=>({name:'headless-textures',loadTexture:()=>Promise.resolve(null)}));
 async function glb(name){const b=fs.readFileSync(new URL('../web/assets/'+name,import.meta.url));return loader.parseAsync(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),'');}
 let checks=0;function check(value,message){assert.ok(value,message);checks++;}
@@ -27,6 +29,17 @@ const city=await glb('city-neighborhood.glb'),world=cityWorld(city),nav=new Navi
 for(const target of [...Object.values(LOCATIONS),...NPCS]){check(pointWalkable(world,target.x,target.z),`target is outside buildings ${JSON.stringify(target)}`);const route=nav.path(LOCATIONS.citySpawn,target);check(route.length>0,'mission and NPC targets are reachable');let previous=LOCATIONS.citySpawn;for(const next of route){check(segmentWalkable(world,previous,next),'no navigation segment cuts a building');previous=next;}paths++;}
 for(let i=0;i<80;i++){const a=nav.nodes[(i*31)%nav.nodes.length],b=nav.randomNear(a,30,()=>((i*23)%101)/101),route=nav.path(a,b);if(!route.length)continue;let previous=a;for(const next of route){check(segmentWalkable(world,previous,next),'random waypoint routes avoid buildings');previous=next;}}
 let poses=0,minimumFoot=Infinity,maximumLift=0;const allNames=['Idle_Heels','Walk_Heels','Run_Heels','Rifle_Aim_Idle'];
+const nativeMemory=new Map(),native={getItem:k=>nativeMemory.get(k)??null,setItem:(k,v)=>{nativeMemory.set(k,v);return true;},removeItem:k=>{nativeMemory.delete(k);return true;}};
+const nativeStorage=persistentStorage(native,storage),nativeSaves=new SaveSystem(nativeStorage);
+nativeSaves.save(player);memory.clear();check(new SaveSystem(persistentStorage(native,storage)).load().money===player.money,'native save survives a new browser storage context');
+assert.throws(()=>persistentStorage({...native,setItem:()=>false},storage).setItem('luna15.life.v1.a','x'));
+check(nativeStorage.backend==='android-shared-preferences','native backend is selected');
+const npcPlayer=createPlayerState();npcPlayer.area='city';Object.assign(npcPlayer.position,{x:0,z:1});
+const citizens=new NPCManager(nav,npcPlayer,new THREE.Group(),()=>0);await citizens.load({loadAsync:url=>glb(url.replace('./assets/',''))});
+const initialNPC=citizens.snapshot();citizens.talk('npc-guide',true);for(let i=0;i<80;i++)citizens.update(.05,true);
+check(citizens.get('npc-guide').weights.Citizen_Talk>.99,'NPC talk animation continues in a dialog');
+check(citizens.npcs.filter(n=>n.id!=='npc-guide').every(n=>{const before=initialNPC.find(v=>v.id===n.id);return before.x===n.position.x&&before.z===n.position.z;}),'dialog pauses other roaming NPCs');
+citizens.talk('npc-guide',false);for(let i=0;i<1200;i++)citizens.update(.05);check(citizens.debug.invalidPositions===0&&citizens.npcs.every(n=>pointWalkable(world,n.position.x,n.position.z)),'actual cloned NPCs navigate without entering buildings');
 for(const filename of ['jill-barefoot-locomotion.glb','jill-heels-locomotion.glb']){
  const g=await glb(filename),controller=new MovementController(),avatar=new Avatar(g,controller),actor=new THREE.Group();actor.add(avatar.root);const weightsList=[];for(const a of allNames){weightsList.push(Object.fromEntries(allNames.map(n=>[n,Number(n===a)])));for(const b of allNames)if(a<b)weightsList.push(Object.fromEntries(allNames.map(n=>[n,n===a||n===b?.5:0])));}
  for(const weights of weightsList)for(let i=0;i<33;i++){actor.position.set(0,0,0);avatar.update(weights,i/33,i*.071);actor.updateMatrixWorld(true);avatar.ground(actor,()=>0,0);check(Number.isFinite(avatar.clearance)&&avatar.clearance>-.002,'feet do not penetrate ground');minimumFoot=Math.min(minimumFoot,avatar.clearance);maximumLift=Math.max(maximumLift,actor.position.y);for(const bone of avatar.foot.skeleton.bones)check(bone.matrixWorld.elements.every(Number.isFinite),'finite animation bones');poses++;}

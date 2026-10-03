@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.content.SharedPreferences;
+import android.webkit.JavascriptInterface;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -72,6 +74,8 @@ public final class MainActivity extends Activity {
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
         settings.setMediaPlaybackRequiresUserGesture(true);
+        webView.addJavascriptInterface(new LocalSaveBridge(
+            getSharedPreferences("luna_life_v1", MODE_PRIVATE)), "LunaLocalStore");
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
             .build();
@@ -123,6 +127,25 @@ public final class MainActivity extends Activity {
     private static boolean local(Uri uri) {
         return "https".equals(uri.getScheme()) && HOST.equals(uri.getHost())
             && uri.getPath() != null && uri.getPath().startsWith("/assets/");
+    }
+
+    /** Two private save slots, synchronously committed before JS gets success. */
+    public static final class LocalSaveBridge {
+        private final SharedPreferences preferences;
+        LocalSaveBridge(SharedPreferences preferences) { this.preferences = preferences; }
+        private boolean allowed(String key) {
+            return "luna15.life.v1.a".equals(key) || "luna15.life.v1.b".equals(key);
+        }
+        @JavascriptInterface public String getItem(String key) {
+            return allowed(key) ? preferences.getString(key, null) : null;
+        }
+        @JavascriptInterface public boolean setItem(String key, String value) {
+            return allowed(key) && value != null && value.length() <= 65536
+                && preferences.edit().putString(key, value).commit();
+        }
+        @JavascriptInterface public boolean removeItem(String key) {
+            return allowed(key) && preferences.edit().remove(key).commit();
+        }
     }
 
     @SuppressWarnings("deprecation") private void immersive() {
