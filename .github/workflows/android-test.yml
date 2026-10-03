@@ -17,13 +17,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check offline assets and joystick movement
+      - name: Check offline assets, movement and life systems
         run: |
           mkdir -p reports
           python3 scripts/prepare_assets.py
@@ -31,6 +31,7 @@ jobs:
           node scripts/check_movement.mjs | tee reports/movement.json
           node scripts/check_runtime.mjs | tee reports/animation-runtime.json
           node scripts/check_city.mjs | tee reports/city.json
+          node scripts/check_life.mjs | tee reports/life-systems.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -53,11 +54,11 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee reports/package.txt
           python3 scripts/check_apk.py "$APK" | tee reports/apk.json
           mkdir -p artifacts
-          cp "$APK" artifacts/luna15-heel-motion-test-v2.apk
+          cp "$APK" artifacts/luna15-life-v1-test.apk
           cp android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk artifacts/instrumentation.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: luna15-heel-motion-test-v2
+          name: luna15-life-v1-test
           path: |
             artifacts/*.apk
             reports/
@@ -67,11 +68,11 @@ jobs:
   emulator:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: luna15-heel-motion-test-v2
+          name: luna15-life-v1-test
           path: download
       - name: Enable KVM
         run: |
@@ -91,7 +92,7 @@ jobs:
             mkdir -p reports
             adb shell wm density 240
             adb shell settings put secure immersive_mode_confirmations confirmed
-            adb install download/artifacts/luna15-heel-motion-test-v2.apk
+            adb install download/artifacts/luna15-life-v1-test.apk
             adb install download/artifacts/instrumentation.apk
             adb shell svc wifi disable
             adb shell svc data disable

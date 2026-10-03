@@ -1,43 +1,24 @@
-# luna_15 · 人物移动测试
+# luna_15 · Luna 城市生活 V1
 
-Jill 模型、四段高跟鞋动画、城市街区、手机摇杆，以及可离线运行的 Android 测试应用。
-走路使用 `Female Walk.fbx`；跑步、待机分别替换为 `Running.fbx`、`Idle.fbx`，新增 `Rifle Aiming Idle.fbx` 瞄准待机。
-当前 CCity 街区按用户要求缩至首轮场景的 0.45 倍，范围 251.1 × 105.3 米。人物保持原尺寸约 1.73 米，含建筑阻挡、地面高度采样与镜头防穿墙。城市更新只做预览，尚未打入 v2 APK。
+Three.js + Android WebView 的离线开放世界生活原型。主菜单进入出生公寓，探索街区、与 8 名市民互动、完成 3 个任务、购买服装和换装，并恢复本地存档。
 
-新增 11 个男性市民资源，已拆成独立 GLB，每个内置待机、走路、说话三个动画，身高约 1.77～1.79 米，与原尺寸 Jill 相适应。资源位于 `web/assets/npcs/`，后续 Android 构建会随网页资源一同收录。本次仅准备模型与动画资源，尚未接入 NPC 生成、巡逻或交互逻辑，也未生成新 APK；详见 [男性市民资源说明](docs/male-citizens.md)。
+默认主角使用本次提供的赤脚 Jill 模型，保留原尺寸约 1.73 米；穿高跟鞋时使用原 Jill heels 的姿态与四段动画。城市保持 0.45 倍，实际范围 251.1 × 105.3 米。镜头默认 2.2 米，瞄准肩后镜头 1.85 米，保留建筑碰撞和镜头遮挡检测。
 
-## 手机测试
+## 安装与游玩
 
-从 Actions 的 `luna15-heel-motion-test-v2` 构建附件下载 `luna15-heel-motion-test-v2.apk`。
-支持 Android 8.0 及以上，使用手机系统 Android WebView，需要 WebGL 2。
-资源全部内置，无需联网，无需存储或网络权限。应用名称为「人物移动测试」，包名 `com.luna.heelmotion`。
+GitHub Actions 附件 `luna15-life-v1-test` 中的 `luna15-life-v1-test.apk` 是测试安装包。应用名称「Luna 城市生活」，包名仍为 `com.luna.heelmotion`，固定测试签名，可覆盖原测试版本。Android 8.0 及以上，系统 WebView 需支持 WebGL 2。全部资源内置，无网络或存储权限。
 
-- 左下摇杆移动，右侧空白区域拖动旋转视角。
-- 「跑步」切换走路与跑步，可一只手按摇杆、另一只手点击按钮。
-- 「瞄准待机」选择步枪瞄准姿态，移动时播放正常走路/跑步，松杆后回到瞄准待机；再次点击恢复普通待机。
-- 第三人称镜头默认距离从 3.5 米拉近至 2.2 米，缩短约 37.1%。
-- 「脚部视角」观察高跟鞋接触地面；「重置」返回起点。
-- 横屏运行，适配两种横屏方向；切换应用时清除摇杆输入。
+- 左下摇杆移动；右侧空白区域拖动镜头；右下跑步、瞄准和接近物体后出现的互动按钮。
+- 公寓任务板或街口阿岚可接任务；服装店店员阿晴提供新生活入门服装。
+- 公寓衣柜可试穿四个装束，也可按五个部位搭配。公寓床铺可跳转到 00、06、12、18 点。
+- 公寓保存点、暂停设置页手动保存；游戏中每 15 秒、切后台、完成任务、购买或换装时自动保存。
+- 主菜单「继续游戏」恢复存档。「新的生活」会提示替换已有存档。
+- 暂停包含继续、地图、任务、衣柜、设置和返回主菜单。设置可选流畅画质、镜头距离和脚部观察。
+- 桌面测试：WASD/方向键移动、Shift 跑步、E 互动、Esc 暂停。
 
-若手机 WebView 过旧导致图形加载错误，请更新 Android System WebView。
+## 构建
 
-## 源码与构建
-
-| 目录 | 内容 |
-| --- | --- |
-| `web/` | 完整网页框架和 Three.js 本地依赖，构建时还原完整 GLB |
-| `models/` | 人物动画与城市场景的无损压缩文件和校验信息 |
-| `android/` | Android 原生 WebView 容器、签名配置、Gradle Wrapper |
-| `scripts/` | 动作烘焙与替换脚本、资源和 APK 完整性检查、移动逻辑检查 |
-| `docs/animation-framework.md` | 动画来源、高跟鞋处理与框架说明 |
-| `docs/city-scene.md` | 城市尺度、资源处理、碰撞范围与素材署名 |
-| `web/assets/npcs/` | 11 个独立男性市民 GLB、33 段内置动画、尺寸与资源清单 |
-| `docs/male-citizens.md` | 男性市民动作映射、尺度、资源阶段与素材署名 |
-
-Android 使用 `WebViewAssetLoader` 从应用内资源加载 HTTPS 同源模块，避免 `file://` 的加载限制。
-所有模块使用相对路径，不依赖 import map、CDN 或在线网站。
-
-构建环境：JDK 17、Android SDK 35、Build Tools 35.0.0。Gradle Wrapper 固定 8.11.1，Android Gradle Plugin 固定 8.9.2。
+JDK 17、Android SDK 35、Build Tools 35.0.0、Gradle 8.11.1、AGP 8.9.2。
 
 ```bash
 python3 scripts/prepare_assets.py
@@ -45,23 +26,28 @@ python3 scripts/check_web.py
 node scripts/check_movement.mjs
 node scripts/check_runtime.mjs
 node scripts/check_city.mjs
-bash android/gradlew -p android assembleDebug
+node scripts/check_life.mjs
+bash android/gradlew -p android assembleDebug assembleDebugAndroidTest lintDebug
+python3 scripts/check_apk.py android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-输出：`android/app/build/outputs/apk/debug/app-debug.apk`。
-完整动画 GLB 无损压缩存放于仓库；构建会自动还原并检查 SHA-256，APK 中仍是原完整 GLB。
-公开的 `android/test-signing.keystore` 仅用于测试，固定测试签名使后续测试版本可覆盖安装；不可用于正式应用。
+`web/` 全部随 APK 内置。三个大型 GLB 以无损 gzip 存入 `models/`，构建前恢复并校验 SHA-256。`android/test-signing.keystore` 为公开测试签名，不用于正式发行。推送 main 启动 APK 构建、签名与资源完整性校验，再由断网 Android 35 模拟器实际检查触控、任务、购买和重开恢复。
 
-推送到 main 默认由 GitHub Actions 构建并检查 APK 签名、安装元数据和全部资源字节；本次城市预览提交使用 `[skip ci]`，按请求暂不打包。
-另一个模拟器任务实际安装 APK，在断网状态检查模型载入、原生摇杆触控、双指切换跑步、松杆停止、瞄准待机、视角与重置。
-真机的画面和帧率以手机实际测试为准。
-
-网页本地运行：
+网页测试：
 
 ```bash
 python3 scripts/prepare_assets.py
 python3 -m http.server 8080 --directory web
 ```
 
-当前为平地街区移动框架，支持建筑包围盒阻挡，不含复杂地形、台阶攀爬、室内探索或角色间碰撞。
-Three.js 许可见 `web/vendor/LICENSE-THREE.txt`；角色素材许可遵循原提供文件。城市场景由 Neberkenezer 制作，使用 CC BY 4.0，署名与变更说明见 `docs/city-scene.md`。
+浏览器集成检查及真实高跟鞋预览使用 `scripts/check_life_browser.mjs`、`scripts/render_heels.mjs`，需要 Playwright Chromium；可通过 `PLAYWRIGHT_MODULE`、`CHROMIUM_EXECUTABLE` 指定环境。鞋预览还需 sharp（`SHARP_MODULE`）。运行时网页不依赖这些开发工具。
+
+## 结构与范围
+
+详见 [V1 修改报告](docs/life-v1.md)，包含新增/修改文件、流程、检查与已知限制。统一状态位于 `web/player-state.js`，人物与 NPC 状态机、交互、任务、商店、时间、存档和导航分别独立。
+
+四个装束为原始赤脚、高跟鞋、街头套装和夜色套装。新增服装采用简化骨骼绑定测试网格；后续可替换为精细服装资源。安全屋是单独的简易测试室内。无完整驾驶、交通、警察、通缉、多人或枪战，仅预留状态/交互接口。NPC 使用可行走区域、障碍和 waypoint 网络，尚未升级 NavMesh；不含角色间物理碰撞、跳跃、攀爬或动态破坏。
+
+原项目回滚分支：`rollback/pre-life-v1-20261004`（`97646b49b6ffcfd3857fc7713c86743b366aefab`）。
+
+Three.js 许可见 `web/vendor/LICENSE-THREE.txt`；人物素材遵循原文件许可。城市场景 Neberkenezer / CC BY 4.0，详见 [城市说明](docs/city-scene.md)；男性 NPC 资源与署名见 [市民说明](docs/male-citizens.md)。

@@ -48,7 +48,7 @@ public final class MovementSmokeTest {
         JSONObject value = null;
         do {
             value = snapshot();
-            if (value.optBoolean("loaded") && state.equals(value.optString("state"))) return value;
+            if (value.optBoolean("loaded") && value.optInt("frames") > 0 && state.equals(value.optString("state"))) return value;
             SystemClock.sleep(200);
         } while (SystemClock.uptimeMillis() < end);
         fail("Did not reach " + state + ": " + value);
@@ -111,64 +111,89 @@ public final class MovementSmokeTest {
         event.recycle();
     }
 
-    @Test public void testOfflineWalkRunAndRelease() throws Exception {
+    private void tap(String id) throws Exception {
+        float[] xy = point(id, .5);
+        long start = SystemClock.uptimeMillis();
+        touch(start, MotionEvent.ACTION_DOWN, xy);
+        SystemClock.sleep(80);
+        touch(start, MotionEvent.ACTION_UP, xy);
+    }
+    private void click(String action, String value) throws Exception {
+        evaluate("document.querySelector('[data-action=\"" + action + "\"]"
+            + (value == null ? "" : "[data-value=\"" + value + "\"]") + "').click()");
+    }
+    private void teleport(String area, double x, double z) throws Exception {
+        evaluate("window.__lifeTest.teleport('" + area + "'," + x + "," + z + ")");
+    }
+    private void start() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setClassName(getInstrumentation().getTargetContext(), MainActivity.class.getName());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("diagnostics", true);
         activity = (MainActivity)getInstrumentation().startActivitySync(intent);
         getInstrumentation().runOnMainSync(() -> webView = activity.getTestWebView());
+    }
+
+    @Test public void testOfflineLifeAndMultiTouch() throws Exception {
+        start();
         try {
-            JSONObject initial = waitFor("待机", 120000);
-            assertEquals("Four animation clips loaded", 4, initial.getJSONArray("animations").length());
-            assertEquals("Closer third-person camera", 2.2, initial.getDouble("cameraDistance"), .001);
-            assertTrue("WebGL2 renderer running", initial.getInt("frames") > 0);
-            assertEquals("Model loaded through offline HTTPS assets", "appassets.androidplatform.net",
-                initial.getString("host"));
-            float[] center = point("joystick", .5);
-            float[] forward = point("joystick", .16);
-            long start = SystemClock.uptimeMillis();
-            touch(start, MotionEvent.ACTION_DOWN, center);
-            touch(start, MotionEvent.ACTION_MOVE, forward);
+            JSONObject initial = waitFor("待机", 180000);
+            assertEquals("main", initial.getString("mode"));
+            assertEquals(4, initial.getJSONArray("animations").length());
+            assertEquals(8, initial.getJSONArray("npcs").length());
+            assertEquals(2.2, initial.getDouble("cameraDistance"), .001);
+            assertEquals("appassets.androidplatform.net", initial.getString("host"));
+            tap("new-game");
+            assertEquals("home", snapshot().getJSONObject("player").getString("area"));
+            teleport("city", 0, 0);
+            float[] center = point("joystick", .5), forward = point("joystick", .16);
+            long touchStart = SystemClock.uptimeMillis();
+            touch(touchStart, MotionEvent.ACTION_DOWN, center);
+            touch(touchStart, MotionEvent.ACTION_MOVE, forward);
             JSONObject walking = waitFor("走路", 20000);
-            assertTrue("Joystick walk has speed", walking.getDouble("speed") > .035);
+            assertTrue(walking.getDouble("speed") > .035);
             float[] runButton = point("run", .5);
-            secondTouch(start, MotionEvent.ACTION_POINTER_DOWN, forward, runButton);
-            SystemClock.sleep(100);
-            secondTouch(start, MotionEvent.ACTION_POINTER_UP, forward, runButton);
+            secondTouch(touchStart, MotionEvent.ACTION_POINTER_DOWN, forward, runButton);
+            SystemClock.sleep(150);
+            secondTouch(touchStart, MotionEvent.ACTION_POINTER_UP, forward, runButton);
             JSONObject running = waitFor("跑步", 20000);
-            assertTrue("Second finger toggles running while joystick held", running.getBoolean("running"));
-            assertTrue("Running exceeds walking speed", running.getDouble("speed") > .95);
-            JSONObject position = running.getJSONObject("position");
-            assertTrue("Character translates", Math.hypot(position.getDouble("x"),
-                position.getDouble("z")) > .05);
-            touch(start, MotionEvent.ACTION_UP, forward);
-            JSONObject stopped = waitFor("待机", 20000);
-            assertTrue("Release clears movement", stopped.getDouble("speed") < .035);
-            float[] aimButton = point("aim", .5);
-            long aimStart = SystemClock.uptimeMillis();
-            touch(aimStart, MotionEvent.ACTION_DOWN, aimButton);
-            touch(aimStart, MotionEvent.ACTION_UP, aimButton);
-            JSONObject aiming = waitFor("瞄准待机", 20000);
-            assertTrue("Native touch selects rifle aim idle", aiming.getBoolean("aiming"));
+            assertTrue("Second finger toggles run", running.getBoolean("running"));
+            assertTrue(running.getDouble("speed") > .95);
+            touch(touchStart, MotionEvent.ACTION_UP, forward);
+            waitFor("待机", 20000);
+            tap("aim");
+            waitFor("瞄准待机", 20000);
             waitForWeight("Rifle_Aim_Idle", .99, 20000);
-            assertTrue("Aim clip receives the stationary weight",
-                snapshot().getJSONObject("weights").getDouble("Rifle_Aim_Idle") > .99);
-            evaluate("document.getElementById('foot-view').click()");
-            assertTrue("Foot view control", snapshot().getBoolean("footView"));
-            evaluate("document.getElementById('foot-view').click();document.getElementById('reset').click()");
-            JSONObject reset = snapshot();
-            assertFalse("Reset returns walking mode", reset.getBoolean("running"));
-            assertFalse("Reset clears aim selection", reset.getBoolean("aiming"));
-            assertEquals(0, reset.getJSONObject("position").getDouble("x"), .001);
-            assertEquals(0, reset.getJSONObject("position").getDouble("z"), .001);
-            Bitmap bitmap = getInstrumentation().getUiAutomation().takeScreenshot();
-            assertNotNull("Rendered screenshot", bitmap);
-            File file = new File(getInstrumentation().getTargetContext().getFilesDir(), "test-preview.png");
-            try (FileOutputStream stream = new FileOutputStream(file)) {
-                assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream));
-            }
-            bitmap.recycle();
+            tap("aim");
+            assertTrue("Feet contact the scaled city", snapshot().getDouble("shoeClearance") >= -.002);
+
+            // Main-menu -> safehouse -> city -> NPC -> shop -> reward -> save.
+            teleport("home", 0, 11.9);
+            tap("interact"); click("accept", "new-life"); tap("close-panel");
+            teleport("home", 0, 7.9); tap("interact");
+            assertEquals("city", snapshot().getJSONObject("player").getString("area"));
+            teleport("city", -1.1, -2.5); tap("interact");
+            assertEquals("dialog", snapshot().getString("modal"));
+            click("gift", null); click("shop", null); click("buy", "city-bag");
+            click("buy", "night-dress"); click("wardrobe", null); click("outfit", "night");
+            tap("close-panel");
+            teleport("city", -3.1, 2.2); tap("interact");
+            JSONObject player = snapshot().getJSONObject("player");
+            assertEquals(420, player.getInt("money"));
+            assertEquals("new-life", player.getJSONObject("mission").getJSONArray("completed").getString(0));
+            assertEquals("night", player.getJSONObject("outfit").getString("preset"));
+            tap("pause"); click("settings", null); click("save", null); tap("close-panel");
+            getInstrumentation().runOnMainSync(() -> activity.finish());
+            start();
+            waitFor("待机", 180000);
+            tap("continue-game");
+            JSONObject restored = snapshot().getJSONObject("player");
+            assertEquals("Money survives a new WebView", 420, restored.getInt("money"));
+            assertEquals("Outfit survives a new WebView", "night", restored.getJSONObject("outfit").getString("preset"));
+            assertEquals("Completed quest survives", 1, restored.getJSONObject("mission").getJSONArray("completed").length());
+            teleport("city", 0, 2);
+            SystemClock.sleep(1200);
+            assertNull("No local storage error", snapshot().opt("saveError") == JSONObject.NULL ? null : snapshot().opt("saveError"));
         } finally {
             Bitmap diagnostic = getInstrumentation().getUiAutomation().takeScreenshot();
             if (diagnostic != null) {

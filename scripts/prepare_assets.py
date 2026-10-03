@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-for manifest in ['manifest.json','city-manifest.json']:
+for manifest in ['manifest.json','city-manifest.json','barefoot-manifest.json']:
     metadata = json.loads((root / 'models' / manifest).read_text())
     target = root / 'web/assets' / metadata['fileName']
     def valid(data):

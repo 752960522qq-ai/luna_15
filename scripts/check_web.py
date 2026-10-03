@@ -31,6 +31,21 @@ city_gltf = json.loads(city[20:20+city_json_length])
 assert all('uri' not in image for image in city_gltf['images']), 'city textures must be embedded'
 assert city_gltf['scenes'][0]['extras']['unit'] == 'metre'
 
+life = json.loads((ROOT / 'models/life-assets-manifest.json').read_text())
+for name, metadata in life['assets'].items():
+    binary = (WEB / 'assets' / name).read_bytes()
+    assert len(binary) == metadata['byteLength']
+    assert hashlib.sha256(binary).hexdigest() == metadata['sha256']
+    n = struct.unpack_from('<I', binary, 12)[0]
+    document = json.loads(binary[20:20+n])
+    assert all('uri' not in image for image in document.get('images', []))
+    assert all('uri' not in buffer for buffer in document['buffers'])
+    if name == life['defaultModel']:
+        assert {clip['name'] for clip in document['animations']} == set(sources)
+        assert len(document['skins'][0]['joints']) == 437
+    else:
+        assert len(document['meshes']) == 1 and not document.get('skins')
+
 refs = 0
 for path in WEB.rglob('*.js'):
     source = re.sub(r'/\*.*?\*/', '', path.read_text(), flags=re.S)

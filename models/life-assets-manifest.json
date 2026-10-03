@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "defaultModel": "jill-barefoot-locomotion.glb",
+  "heelsModel": "jill-heels-locomotion.glb",
+  "standaloneShoes": "jill-high-heels.glb",
+  "units": "metres",
+  "sourceBarefootSha256": "03b143e3b2b2c45ab2651925f49bb3806e8cfe913e58db6266ad7dc6c98fa60f",
+  "assets": {
+    "jill-barefoot-locomotion.glb": {
+      "byteLength": 17349636,
+      "sha256": "80e08c6043a98fef91883874d1c66887ff60330c9b830facd16295a006d2f8aa"
+    },
+    "jill-high-heels.glb": {
+      "byteLength": 1002116,
+      "sha256": "1401bdee0ba85ff7e994034b227249d295f717f2daa2549faf8ef952f8e1a499"
+    }
+  }
+}

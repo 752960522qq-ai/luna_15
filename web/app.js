@@ -1,278 +1,138 @@
 import * as THREE from './vendor/three.module.js';
-import { GLTFLoader } from './vendor/GLTFLoader.js';
-import { MovementController, MOTION } from './movement.js?v=city-1';
-import { cityWorld, cameraFraction, groundSampler } from './city.js?v=city-scale-045';
+import {GLTFLoader} from './vendor/GLTFLoader.js';
+import {MovementController} from './movement.js';
+import {cityWorld,cameraFraction,groundSampler} from './city.js';
+import {PlayerState,createPlayerState,replacePlayerState} from './player-state.js';
+import {GameClock,MissionSystem,ShopSystem,SaveSystem} from './game-systems.js';
+import {InteractionSystem} from './interaction.js';
+import {NavigationNetwork,pointWalkable} from './navigation.js';
+import {NPCManager} from './npcs.js';
+import {Avatar} from './avatar.js';
+import {createHome,addCityProps,marker} from './world-props.js';
+import {LOCATIONS} from './life-data.js';
+import {MobileControls} from './controls.js';
+import {GameUI} from './game-ui.js';
 
-const $=id=>document.getElementById(id);
-const canvas=$('scene'),loading=$('loading');
-const controller=new MovementController();
-const keys=new Set();
-const stick={x:0,forward:0,pointer:null};
-const CAMERA_DISTANCE=2.2,CAMERA_TARGET_HEIGHT=.9;
-const cameraState={yaw:Math.PI+.30,pitch:.22,distance:CAMERA_DISTANCE,foot:false,drag:null};
-let runMode=false,ready=false,mixer,actions={},actor=new THREE.Group(),lastFrame=performance.now(),lastHud=0;
-let renderer,renderFrames=0,world=null,previewCamera=null,sampleGround=null,currentGroundY=0,lastShoeMinimum=null,reframeCamera=null,actualCameraDistance=0;
-if(new URLSearchParams(location.search).get('diagnostics')==='1'){
-  window.__heelMotionSnapshot=()=>({...controller.snapshot(),loaded:ready,running:runMode,
-    animations:Object.keys(actions),weights:controller.weights,frames:renderFrames,footView:cameraState.foot,cameraDistance:cameraState.distance,host:location.hostname,
-    groundY:currentGroundY,shoeClearance:lastShoeMinimum===null?null:lastShoeMinimum-currentGroundY,
-    actualCameraDistance,characterScale:actor.scale.toArray(),
-    city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null});
-  // Development-only still rendering. The normal camera and controls keep
-  // their existing close third-person defaults when diagnostics is absent.
-  window.__heelMotionPreviewCamera=value=>{
-    if(value===null){previewCamera=null;return;}
-    for(const key of ['position','target'])if(!Array.isArray(value?.[key])||value[key].length!==3||!value[key].every(Number.isFinite))throw new Error('Expected two camera vectors');
-    previewCamera={position:[...value.position],target:[...value.target]};
-  };
-}
+const $=id=>document.getElementById(id),player=PlayerState;
+const canvas=$('scene'),controller=new MovementController(),actor=new THREE.Group();
+const cameraState={yaw:.3,pitch:.22,foot:false};
+let renderer,scene,camera,world,sampleCity,network,npcs,props,avatars,selectedAvatar,cityRoot;
+let ready=false,mode='loading',frames=0,groundY=0,actualCameraDistance=0,lastFrame=performance.now(),lastHud=0,autosave=0,visualTime=0,talking=null,previewCamera=null,settingsChanged=false;
+const home=createHome(),npcGroup=new THREE.Group(),propGroup=new THREE.Group();
+const saveSystem=new SaveSystem(localStorage),clock=new GameClock(player);
+let saved=saveSystem.load();if(saved)Object.assign(player.settings,saved.settings);
+const missions=new MissionSystem(player,m=>{ui.toast(`${m.name}完成 · +¥ ${m.reward}`);saveGame(false);});
+const shop=new ShopSystem(player,()=>{applyOutfit();missions.updateLocation();});
+const interactions=new InteractionSystem(player);
+const ui=new GameUI(player,missions,{action:handleAction,world:()=>world,modal:enabled=>{
+  controls.enable(!enabled&&mode==='play');controller.setInteract(enabled&&mode==='play');
+  if(!enabled&&talking){npcs.talk(talking,false);talking=null;}
+}});
+const controls=new MobileControls(canvas,cameraState,{aim:()=>controller.setAim(!controller.aiming),interact:()=>interactions.interact(),pause:()=>{
+  if(mode!=='play')return;if(ui.view)ui.close();else ui.open('pause');
+}});
 
-function fail(message,error){
-  ready=false;loading.hidden=false;loading.classList.add('error');
-  loading.querySelector('strong').textContent='场景暂时无法载入';
-  $('load-detail').textContent=message;$('retry').hidden=false;
-  if(error)console.error(error);
-}
+function fail(message,error){ready=false;mode='error';controls.enable(false);$('loading').hidden=false;$('loading').classList.add('error');$('loading').querySelector('strong').textContent='场景暂时无法载入';$('load-detail').textContent=message;$('retry').hidden=false;console.error(error||message);}
 $('retry').addEventListener('click',()=>location.reload());
-try{
-  renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));
-  renderer.outputColorSpace=THREE.SRGBColorSpace;
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.1;
-  renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-}catch(error){fail('浏览器需要支持 WebGL 2，请换用新版浏览器。',error);}
+function saveGame(show=true){if(!ready||mode==='main')return false;try{syncPosition();saveSystem.save(player);saved=saveSystem.load();if(show)ui.toast('游戏已保存');return true;}catch(error){ui.toast(error.message);return false;}}
+function syncPosition(){Object.assign(player.position,{x:controller.x,y:groundY,z:controller.z,yaw:controller.yaw});}
+function applyOutfit(){if(!avatars)return;selectedAvatar=player.outfit.shoes==='black-heels'?avatars.heels:avatars.barefoot;for(const avatar of Object.values(avatars)){avatar.root.visible=avatar===selectedAvatar;avatar.outfit(player.outfit);}}
+function activeWorld(){return player.area==='city'?world:home.world;}
+function ground(x,z){return player.area==='city'?sampleCity(x,z):0;}
+function setArea(area,position=null){
+  player.area=area;controller.setWorld(activeWorld());const pose=position||{...(area==='city'?LOCATIONS.citySpawn:home.world.spawn),yaw:Math.PI};
+  if(!pointWalkable(activeWorld(),pose.x,pose.z,.26)){Object.assign(pose,area==='city'?LOCATIONS.citySpawn:home.world.spawn);}
+  controller.setPose(pose);groundY=ground(controller.x,controller.z);syncPosition();
+  home.group.visible=area==='home';cityRoot.visible=propGroup.visible=npcGroup.visible=area==='city';
+  npcs?.update(0);cameraState.yaw=.3;camera.position.set(0,0,0);look.set(controller.x,groundY+.95,controller.z);missions.updateLocation();
+}
+function startNew(){if(!ready)return;saveSystem.clear();const preferences={...player.settings};replacePlayerState(player,createPlayerState());Object.assign(player.settings,preferences);settingsChanged=false;mode='play';ui.close();$('main-menu').hidden=true;$('hud').hidden=false;applyQuality();applyOutfit();setArea('home');controls.enable(true);autosave=0;saveGame(false);ui.toast('欢迎来到 Luna。走到门口开始探索。');}
+function continueGame(){if(!ready)return;const value=saveSystem.load();if(!value){ui.toast('还没有可恢复的存档');return;}const preferences={...player.settings};replacePlayerState(player,value);if(settingsChanged)Object.assign(player.settings,preferences);settingsChanged=false;mode='play';ui.close();$('main-menu').hidden=true;$('hud').hidden=false;applyQuality();applyOutfit();setArea(player.area,{...player.position});controls.enable(true);autosave=0;}
+function mainMenu(){saveGame(false);ui.close();mode='main';controls.enable(false);controller.setInteract(false);$('hud').hidden=true;$('main-menu').hidden=false;saved=saveSystem.load();$('continue-game').disabled=!saved;}
+$('new-game').addEventListener('click',()=>{if(saved){ui.open('new-confirm');$('panel-title').textContent='开始新的生活？';$('panel-content').innerHTML='<p class="dialog-text">新的生活将替换当前存档。</p><div class="row"><button data-action="new" class="primary">开始新游戏</button><button data-action="resume">取消</button></div>';}else startNew();});
+$('continue-game').addEventListener('click',continueGame);$('main-settings').addEventListener('click',()=>ui.open('settings'));
+function openDialog(npc){talking=npc.id;npcs.talk(npc.id,true);missions.event('talk',{npc:npc.id});ui.open('dialog',npc);}
+function handleAction(action,value){
+  if(action==='resume'){ui.close();return;}if(action==='new'){startNew();return;}if(action==='main'){mainMenu();return;}
+  if(['map','missions','wardrobe','settings','rest'].includes(action)){ui.open(action);return;}
+  if(action==='accept'){const m=missions.accept(value);ui.toast(`已接取：${m.name}`);saveGame(false);ui.refresh();return;}
+  if(action==='shop'){if(!shopOpen())return;ui.open('shop');return;}
+  if(action==='gift'){if(missions.active?.id!=='new-life'||missions.step?.kind!=='own')throw new Error('当前没有可领取的服装');shop.grant(['street-top','city-bottom']);shop.equip('street');saveGame(false);ui.toast('获得街头套装，请返回公寓');ui.refresh();return;}
+  if(action==='deliver'){if(!missions.event('deliver',{npc:'npc-recipient'}))throw new Error('没有可交付的包裹');ui.toast('包裹已送达');saveGame(false);ui.refresh();return;}
+  if(action==='buy'){const item=shop.buy(value);missions.updateLocation();saveGame(false);ui.toast(`已购买 ${item.name}`);ui.refresh();return;}
+  if(action==='outfit'){shop.equip(value);saveGame(false);ui.refresh();return;}
+  if(action==='slot'){const [type,id]=value.split(':');shop.equipSlot(type,id==='none'?null:id);saveGame(false);ui.refresh();return;}
+  if(action==='time'){clock.skipTo(Number(value));missions.updateLocation();saveGame(false);ui.close();ui.toast(`休息到 ${String(value).padStart(2,'0')}:00`);return;}
+  if(action==='quality'){player.settings.quality=value;settingsChanged=true;applyQuality();saveGame(false);ui.refresh();return;}
+  if(action==='distance'){player.settings.cameraDistance=Number(value);settingsChanged=true;saveGame(false);ui.refresh();return;}
+  if(action==='foot'){cameraState.foot=!cameraState.foot;ui.close();return;}
+  if(action==='reset'){setArea('home');cameraState.foot=false;ui.close();saveGame(false);return;}
+  if(action==='save'){saveGame();return;}
+}
+function shopOpen(){const h=player.timeMinutes/60;if(h<8||h>=20){ui.toast('服装店营业时间 08:00～20:00');return false;}return true;}
+function registerInteractions(){
+  const register=(id,type,area,position,label,interact,extra={})=>interactions.register({id,type,area,position,label,interact,...extra});
+  register('home-exit','door','home',{x:0,z:7.65},'出门',()=>{setArea('city');saveGame(false);});
+  register('home-door','door','city',LOCATIONS.homeDoor,'回家',()=>{setArea('home');saveGame(false);});
+  register('wardrobe','wardrobe','home',{x:-2,z:10.5},'衣柜',()=>ui.open('wardrobe'));
+  register('save','save','home',{x:2,z:10.5},'保存',()=>saveGame());
+  register('bed','rest','home',{x:-1,z:8.5},'休息',()=>ui.open('rest'));
+  register('mission-board','task','home',{x:0,z:12.3},'任务',()=>ui.open('missions'));
+  register('shop','shop','city',LOCATIONS.shop,'商店',()=>{if(shopOpen())ui.open('shop');}, {radius:.65});
+  register('parcel','pickup','city',LOCATIONS.parcel,'拾取',()=>{if(!player.inventory.includes('parcel'))player.inventory.push('parcel');missions.event('pickup',{item:'parcel'});ui.toast('已接取包裹');saveGame(false);},{enabled:()=>missions.active?.id==='delivery'&&missions.step?.kind==='pickup'});
+  for(const n of npcs.npcs)register(n.id,'npc','city',()=>n.position,'交谈',()=>openDialog(n),{radius:1.6});
+  // A vehicle can register the same interface later; driving is not active.
+}
+function applyQuality(){if(!renderer)return;const low=player.settings.quality==='low';renderer.setPixelRatio(low?1:Math.min(devicePixelRatio||1,1.35));renderer.shadowMap.enabled=!low;resize();}
+function resize(){if(!renderer||!camera)return;const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+const target=new THREE.Vector3(),desired=new THREE.Vector3(),look=new THREE.Vector3(),offset=new THREE.Vector3(16,28,12),lightTarget=new THREE.Vector3(),shoulder=new THREE.Vector3();
+let sun,hemi,roomLight,nightLights=[],lastLighting=-100;
+const timeColors=[new THREE.Color('#101c3c'),new THREE.Color('#d8b4a0'),new THREE.Color('#a9c7dd'),new THREE.Color('#bb928b'),new THREE.Color('#101c3c')],sunColors=[new THREE.Color('#98aad4'),new THREE.Color('#ffd1a0'),new THREE.Color('#fff1dc'),new THREE.Color('#ffbc88'),new THREE.Color('#98aad4')];
+function lighting(){const t=player.timeMinutes/360,i=Math.floor(t),f=t-i;scene.background.copy(timeColors[i]).lerp(timeColors[i+1],f);scene.fog.color.copy(scene.background);const day=Math.max(0,Math.sin((player.timeMinutes-360)/1440*Math.PI*2));sun.intensity=.18+day*2.9;sun.color.copy(sunColors[i]).lerp(sunColors[i+1],f);hemi.intensity=.65+day*1.55;roomLight.visible=player.area==='home';const night=1-day;for(const lamp of props.lamps)lamp.material.emissiveIntensity=night*2.5;const nearest=[...props.lamps].sort((a,b)=>a.position.distanceToSquared(actor.position)-b.position.distanceToSquared(actor.position));for(let n=0;n<nightLights.length;n++){nightLights[n].visible=player.area==='city'&&night>.2;nightLights[n].intensity=night*10;nightLights[n].position.copy(nearest[n].position);}lastLighting=visualTime;}
 
-if(renderer){
-  const scene=new THREE.Scene();
-  scene.background=new THREE.Color('#a9c7dd');
-  scene.fog=new THREE.Fog('#a9c7dd',120,550);
-  const camera=new THREE.PerspectiveCamera(46,1,.03,900);
-  const hemi=new THREE.HemisphereLight('#d6eef7','#727b62',2.2);scene.add(hemi);
-  const sun=new THREE.DirectionalLight('#fff2de',3.1);sun.position.set(35,65,25);
-  sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
-  sun.shadow.camera.left=-25;sun.shadow.camera.right=25;sun.shadow.camera.top=25;sun.shadow.camera.bottom=-25;
-  sun.shadow.camera.near=.5;sun.shadow.camera.far=130;sun.shadow.bias=-.0001;sun.shadow.normalBias=.015;
-  scene.add(sun,sun.target);
-  scene.add(actor);
-
-  const target=new THREE.Vector3(0,1,0),cameraDesired=new THREE.Vector3(),look=new THREE.Vector3(),lightTarget=new THREE.Vector3(),lightOffset=new THREE.Vector3(35,65,25);
-  reframeCamera=()=>{camera.position.set(0,0,0);look.set(controller.x,(sampleGround?.(controller.x,controller.z)||0)+CAMERA_TARGET_HEIGHT,controller.z);};
-  const contactVertex=new THREE.Vector3();
-  const leftContact=new THREE.Vector3(),rightContact=new THREE.Vector3();
-  let shoeContact=null,headAnchor=null;
-  function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
-  resize();window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
-
-  const loader=new GLTFLoader();
-  let cityLoaded=false,modelLoaded=false,loadFailed=false;
-  const progressByAsset={character:0,city:0};
-  function assetProgress(name,event){
-    progressByAsset[name]=event.total?event.loaded/event.total:0;
-    const percent=Math.round(progressByAsset.character*61+progressByAsset.city*39);
-    $('load-progress').style.width=`${percent}%`;
-    $('load-detail').textContent=`人物与城市 ${percent}%`;
-  }
-  function finishLoading(){
-    if(!cityLoaded||!modelLoaded||loadFailed)return;
-    ready=true;loading.hidden=true;$('load-progress').style.width='100%';
-    setAnimations();mixer.update(0);actor.updateMatrixWorld(true);
-  }
-  loader.load('./assets/city-neighborhood.glb?v=city-1',gltf=>{
-    try{
-      world=cityWorld(gltf);
-      gltf.scene.traverse(obj=>{
-        if(!obj.isMesh)return;
-        const mats=Array.isArray(obj.material)?obj.material:[obj.material];
-        for(const mat of mats)if(mat.map)mat.map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
-      });
-      scene.add(gltf.scene);sampleGround=groundSampler(gltf.scene);controller.setWorld(world);
-      cameraState.yaw=world.spawn.yaw+Math.PI+.30;
-      reframeCamera();
-      cityLoaded=true;progressByAsset.city=1;finishLoading();
-    }catch(error){loadFailed=true;fail('城市加载失败，请点击重新加载。',error);}
-  },event=>assetProgress('city',event),error=>{loadFailed=true;fail('城市加载失败，请点击重新加载。',error);});
-  loader.load('./assets/jill-heels-locomotion.glb?v=motion-4-v2',gltf=>{
-    actor.add(gltf.scene);
-    actor.updateMatrixWorld(true);
-    const bodySpine=gltf.scene.getObjectByName('Bodyspine_2'),headSpine=gltf.scene.getObjectByName('Headspine_2');
-    if(bodySpine&&headSpine){
-      const offset=bodySpine.matrixWorld.clone().invert().multiply(headSpine.matrixWorld);
-      headAnchor={body:bodySpine,head:headSpine,offset,local:new THREE.Matrix4()};
-    }
-    gltf.scene.traverse(obj=>{
-      if(!obj.isMesh)return;
-      obj.frustumCulled=false;obj.castShadow=true;obj.receiveShadow=true;
-      const materials=Array.isArray(obj.material)?obj.material:[obj.material];
-      for(const mat of materials){
-        if(mat.map)mat.map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
-        // Preserve the supplied material/alpha configuration and all textures.
-      }
-    });
-    // During crossfades, quaternion interpolation can lower the sole a little.
-    // Sample the actual shoe skin, then raise the character just enough to
-    // keep the sole above the city's flat road. Never pull airborne feet down.
-    const shoe=gltf.scene.getObjectByName('Bodypl2020_Boots_Mat');
-    if(shoe?.isSkinnedMesh){
-      const position=shoe.geometry.getAttribute('position'),indices=[];
-      for(let i=0;i<position.count;i++)if(position.getY(i)<.048)indices.push(i);
-      shoeContact={mesh:shoe,position,indices:indices.filter((_,i)=>i%3===0)};
-    }
-    const walkDefinition=gltf.parser.json.animations.find(a=>a.name==='Walk_Heels');
-    const referenceStride=walkDefinition?.extras?.referenceStrideDistance;
-    if(Number.isFinite(referenceStride)&&referenceStride>0)controller.setWalkReference(referenceStride);
-    const runDefinition=gltf.parser.json.animations.find(a=>a.name==='Run_Heels');
-    const runStride=runDefinition?.extras?.referenceStrideDistance;
-    if(Number.isFinite(runStride)&&runStride>0)controller.setRunReference(runStride);
-    mixer=new THREE.AnimationMixer(gltf.scene);
-    for(const name of ['Idle_Heels','Walk_Heels','Run_Heels','Rifle_Aim_Idle']){
-      const clip=THREE.AnimationClip.findByName(gltf.animations,name);
-      if(!clip){loadFailed=true;fail('动画文件不完整，请重新载入。');return;}
-      const action=mixer.clipAction(clip);action.play();action.setEffectiveWeight(name==='Idle_Heels'?1:0);
-      actions[name]={action,duration:clip.duration};
-    }
-    modelLoaded=true;progressByAsset.character=1;finishLoading();
-  },event=>assetProgress('character',event),error=>{loadFailed=true;fail('模型加载失败，请点击重新加载。',error);});
-
-  function setAnimations(){
-    const weights=controller.weights;
-    for(const [name,{action,duration}] of Object.entries(actions)){
-      action.time=name==='Walk_Heels'||name==='Run_Heels'?controller.phase*duration:controller.elapsed%duration;
-      action.setEffectiveWeight(weights[name]);
-    }
-  }
-
-  function frame(now){
+async function load(){
+  try{
+    renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    scene=new THREE.Scene();scene.background=new THREE.Color('#a9c7dd');scene.fog=new THREE.Fog('#a9c7dd',90,240);camera=new THREE.PerspectiveCamera(46,1,.03,300);
+    hemi=new THREE.HemisphereLight('#d6eef7','#727b62',2.2);scene.add(hemi);sun=new THREE.DirectionalLight('#fff2de',3.1);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-13,right:13,top:13,bottom:-13,near:.5,far:65});sun.shadow.bias=-.0001;sun.shadow.normalBias=.015;scene.add(sun,sun.target);roomLight=new THREE.PointLight('#ffe0bb',12,8,2);roomLight.position.set(0,2.6,10);scene.add(roomLight);for(let i=0;i<2;i++){const light=new THREE.PointLight('#ffd38f',8,11,2);scene.add(light);nightLights.push(light);}
+    scene.add(actor,home.group,npcGroup,propGroup);applyQuality();window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
+    const loader=new GLTFLoader();let done=0;const progress=name=>{done++;$('load-progress').style.width=`${Math.round(done/4*100)}%`;$('load-detail').textContent=name;};
+    const [city,barefoot,heels]=await Promise.all([
+      loader.loadAsync('./assets/city-neighborhood.glb').then(g=>{progress('街区已读取');return g;}),
+      loader.loadAsync('./assets/jill-barefoot-locomotion.glb').then(g=>{progress('默认人物已读取');return g;}),
+      loader.loadAsync('./assets/jill-heels-locomotion.glb').then(g=>{progress('高跟鞋姿态已读取');return g;})]);
+    world=cityWorld(city);cityRoot=city.scene;scene.add(cityRoot);sampleCity=groundSampler(cityRoot);network=new NavigationNetwork(world);props=addCityProps(propGroup);marker(home.group,{x:0,z:7.65},'#8bddca');
+    avatars={barefoot:new Avatar(barefoot,controller),heels:new Avatar(heels,controller)};actor.add(avatars.barefoot.root,avatars.heels.root);applyOutfit();
+    npcs=new NPCManager(network,player,npcGroup,sampleCity);await npcs.load(loader);progress('市民和街道导航准备完成');registerInteractions();
+    ready=true;setArea('home');mode='main';$('loading').hidden=true;$('main-menu').hidden=false;$('continue-game').disabled=!saved;lighting();
     requestAnimationFrame(frame);
-    const dt=Math.min((now-lastFrame)/1000,.0333);lastFrame=now;
-    if(document.hidden)return;
-    let input={x:stick.x,forward:stick.forward};
-    if(keys.size){
-      const kx=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0);
-      const kz=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0);
-      if(kx||kz)input={x:kx,forward:kz};
-    }
-    if(ready){
-      controller.update(dt,input,cameraState.yaw,runMode||keys.has('ShiftLeft')||keys.has('ShiftRight'));
-      currentGroundY=sampleGround?.(controller.x,controller.z)||0;
-      actor.position.set(controller.x,currentGroundY,controller.z);actor.rotation.y=controller.yaw;
-      setAnimations();mixer.update(0);
-      actor.updateMatrixWorld(true);
-      if(headAnchor){
-        const {body,head,offset,local}=headAnchor;
-        local.copy(head.parent.matrixWorld).invert().multiply(body.matrixWorld).multiply(offset);
-        local.decompose(head.position,head.quaternion,head.scale);head.updateMatrixWorld(true);
-      }
-      if(shoeContact){
-        let minimum=Infinity,leftMinimum=Infinity,rightMinimum=Infinity;
-        const {mesh,position,indices}=shoeContact;
-        for(const i of indices){
-          contactVertex.fromBufferAttribute(position,i);mesh.applyBoneTransform(i,contactVertex);mesh.localToWorld(contactVertex);
-          minimum=Math.min(minimum,contactVertex.y);
-          if(position.getX(i)<0){
-            if(contactVertex.y<leftMinimum){leftMinimum=contactVertex.y;leftContact.copy(contactVertex);}
-          }else if(contactVertex.y<rightMinimum){rightMinimum=contactVertex.y;rightContact.copy(contactVertex);}
-        }
-        const lift=Math.max(0,currentGroundY+.001-minimum,
-          Number.isFinite(leftMinimum)?(sampleGround?.(leftContact.x,leftContact.z)||0)+.001-leftMinimum:0,
-          Number.isFinite(rightMinimum)?(sampleGround?.(rightContact.x,rightContact.z)||0)+.001-rightMinimum:0);
-        if(lift){actor.position.y+=lift;actor.updateMatrixWorld(true);}
-        lastShoeMinimum=minimum+lift;
-      }
-      lightTarget.set(controller.x,currentGroundY,controller.z);sun.target.position.copy(lightTarget);sun.position.copy(lightTarget).add(lightOffset);
-      if(now-lastHud>100){$('speed').textContent=controller.speed.toFixed(2);$('motion-state').textContent=controller.state;$('speed-fill').style.width=`${controller.speed/MOTION.runSpeed*100}%`;lastHud=now;}
-    }
-    const height=cameraState.foot ? .28 : CAMERA_TARGET_HEIGHT;
-    target.set(controller.x,currentGroundY+height,controller.z);
-    const distance=cameraState.foot ? 1.5 : cameraState.distance;
-    const pitch=cameraState.foot ? .105 : cameraState.pitch;
-    const narrow=Math.max(1,Math.min(1.45,1/camera.aspect));
-    cameraDesired.set(target.x+Math.sin(cameraState.yaw)*distance*Math.cos(pitch)*narrow,target.y+Math.sin(pitch)*distance,target.z+Math.cos(cameraState.yaw)*distance*Math.cos(pitch)*narrow);
-    cameraDesired.lerpVectors(target,cameraDesired,cameraFraction(world,target,cameraDesired));
-    cameraDesired.y=Math.max(currentGroundY+.22,cameraDesired.y);
-    if(camera.position.lengthSq()===0)camera.position.copy(cameraDesired);
-    else camera.position.lerp(cameraDesired,1-Math.exp(-dt*9));
-    // Immediately correct an obstructed interpolated position after a turn.
-    camera.position.lerpVectors(target,camera.position,cameraFraction(world,target,camera.position));
-    look.lerp(target,1-Math.exp(-dt*12));camera.lookAt(look);
-    if(previewCamera){camera.position.fromArray(previewCamera.position);camera.lookAt(new THREE.Vector3().fromArray(previewCamera.target));}
-    actualCameraDistance=camera.position.distanceTo(target);
-    renderer.render(scene,camera);renderFrames++;
-  }
-  requestAnimationFrame(frame);
-  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('图形环境已暂停，请点击重新加载。');});
+  }catch(error){fail('离线资源或图形环境加载失败，请点击重新加载。',error);}
 }
-
-function setRun(value){runMode=!!value;$('run').setAttribute('aria-pressed',String(runMode));$('run-hint').textContent=runMode?'再次点击走路':'点击切换';}
-// Use each touch pointer directly so another finger can toggle while the
-// stick is held, and suppress the duplicate compatibility click.
-function bindToggle(button,toggle){
-  let touchClickPending=false;
-  button.addEventListener('pointerdown',e=>{
-    touchClickPending=e.pointerType==='touch'||e.pointerType==='pen';
-    if(!touchClickPending)return;
-    e.preventDefault();toggle();
-  });
-  button.addEventListener('keydown',()=>{touchClickPending=false;});
-  button.addEventListener('click',e=>{
-    // A primary touch may also synthesize a trusted click. Keyboard input
-    // clears the pending touch, and programmatic clicks still work normally.
-    if(e.isTrusted&&touchClickPending){touchClickPending=false;e.preventDefault();return;}
-    touchClickPending=false;
-    toggle();
-  });
+function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;if(document.hidden)return;visualTime+=dt;
+  if(mode==='play'&&!ui.view){
+    const running=controls.run&&!player.flags.exhausted;controller.update(dt,controls.input(),cameraState.yaw,running);
+    if(running&&controller.speed>1.05){player.stamina=Math.max(0,player.stamina-dt*4.5);if(player.stamina===0)player.flags.exhausted=true;}else{player.stamina=Math.min(100,player.stamina+dt*8);if(player.stamina>=25)player.flags.exhausted=false;}
+    groundY=ground(controller.x,controller.z);syncPosition();clock.update(dt);missions.updateLocation();npcs.update(dt);autosave+=dt;if(autosave>=15){saveGame(false);autosave=0;}
+  }else{controller.update(dt,{x:0,forward:0},cameraState.yaw,false);}
+  actor.position.set(controller.x,groundY,controller.z);actor.rotation.y=controller.yaw;selectedAvatar.update(controller.weights,controller.phase,controller.elapsed);actor.updateMatrixWorld(true);selectedAvatar.ground(actor,ground,groundY);
+  props.markers.parcel.visible=!player.inventory.includes('parcel')&&!player.mission.completed.includes('delivery');
+  lightTarget.set(controller.x,groundY,controller.z);sun.target.position.copy(lightTarget);sun.position.copy(lightTarget).add(offset);if(visualTime-lastLighting>.4)lighting();
+  const aiming=controller.aiming&&!cameraState.foot,height=cameraState.foot?.27:aiming?1.18:.95,distance=cameraState.foot?1.5:aiming?1.85:player.settings.cameraDistance,pitch=cameraState.foot?.1:cameraState.pitch;
+  target.set(controller.x,groundY+height,controller.z);shoulder.copy(target);if(aiming){shoulder.x+=Math.cos(cameraState.yaw)*.24;shoulder.z-=Math.sin(cameraState.yaw)*.24;shoulder.lerpVectors(target,shoulder,cameraFraction(activeWorld(),target,shoulder));}
+  desired.set(shoulder.x+Math.sin(cameraState.yaw)*distance*Math.cos(pitch),shoulder.y+Math.sin(pitch)*distance,shoulder.z+Math.cos(cameraState.yaw)*distance*Math.cos(pitch));desired.lerpVectors(shoulder,desired,cameraFraction(activeWorld(),shoulder,desired));desired.y=Math.max(groundY+.18,desired.y);
+  if(camera.position.lengthSq()===0)camera.position.copy(desired);else camera.position.lerp(desired,1-Math.exp(-dt*9));camera.position.lerpVectors(shoulder,camera.position,cameraFraction(activeWorld(),shoulder,camera.position));look.lerp(shoulder,1-Math.exp(-dt*12));camera.lookAt(look);if(previewCamera){camera.position.fromArray(previewCamera.position);target.fromArray(previewCamera.target);camera.lookAt(target);}actualCameraDistance=camera.position.distanceTo(shoulder);
+  if(now-lastHud>120){ui.hud(interactions.update(),controller);lastHud=now;}
+  renderer.render(scene,camera);frames++;
 }
-bindToggle($('run'),()=>setRun(!runMode));
-function setAim(value){controller.setAim(value);$('aim').setAttribute('aria-pressed',String(controller.aiming));}
-bindToggle($('aim'),()=>setAim(!controller.aiming));
-function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=(world?.spawn.yaw||0)+Math.PI+.30;cameraState.pitch=.22;cameraState.distance=CAMERA_DISTANCE;actor.position.set(controller.x,0,controller.z);actor.rotation.y=controller.yaw;reframeCamera?.();}
-$('reset').addEventListener('click',reset);
-$('foot-view').addEventListener('click',()=>{cameraState.foot=!cameraState.foot;$('foot-view').setAttribute('aria-pressed',String(cameraState.foot));$('foot-view').textContent=cameraState.foot?'全身视角':'脚部视角';});
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('图形环境已暂停，请点击重新加载。');});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame(false);lastFrame=performance.now();});window.addEventListener('pagehide',()=>saveGame(false));window.addEventListener('blur',()=>saveGame(false));
 
-const joy=$('joystick'),knob=$('stick-knob');
-function moveStick(e){
-  if(e.pointerId!==stick.pointer)return;
-  const rect=joy.getBoundingClientRect(),radius=rect.width*.34;
-  let dx=e.clientX-(rect.left+rect.width/2),dy=e.clientY-(rect.top+rect.height/2);
-  const length=Math.hypot(dx,dy);if(length>radius){dx*=radius/length;dy*=radius/length;}
-  stick.x=dx/radius;stick.forward=-dy/radius;knob.style.transform=`translate(${dx}px,${dy}px)`;
+if(new URLSearchParams(location.search).get('diagnostics')==='1'){
+  const snapshot=()=>({...controller.snapshot(),stateId:controller.stateId,running:controls.run,stick:{x:controls.stick.x,forward:controls.stick.forward,pointer:controls.stick.pointer},loaded:ready,mode,animations:selectedAvatar?Object.keys(selectedAvatar.actions):[],weights:controller.weights,frames,footView:cameraState.foot,cameraDistance:player.settings.cameraDistance,actualCameraDistance,host:location.hostname,characterScale:actor.scale.toArray(),groundY,shoeClearance:selectedAvatar?.clearance??null,player:JSON.parse(JSON.stringify(player)),modal:ui.view,interaction:interactions.closest?.id||null,city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null,navigationNodes:network?.nodes.length||0,npcs:npcs?.snapshot()||[],npcDebug:npcs?.debug,drawCalls:renderer?.info.render.calls||0,saveError:saveSystem.error,cameraPosition:camera?.position.toArray()});
+  window.__heelMotionSnapshot=snapshot;window.__lifeSnapshot=snapshot;
+  window.__heelMotionPreviewCamera=value=>{if(value===null){previewCamera=null;return;}for(const k of ['position','target'])if(!Array.isArray(value?.[k])||value[k].length!==3||!value[k].every(Number.isFinite))throw new Error('Expected camera vectors');previewCamera=value;};
+  // Only enabled in an explicitly requested diagnostic launch. Business flows
+  // still use the same UI and interact(player), with normal proximity checks.
+  window.__lifeTest={teleport:(area,x,z,yaw=Math.PI)=>{if(!ready)throw new Error('Not ready');if(!pointWalkable(area==='city'?world:home.world,x,z,.26))throw new Error('Position is blocked');ui.close();setArea(area,{x,z,yaw});interactions.update();ui.hud(interactions.closest,controller);},time:hour=>clock.skipTo(hour),simulateNPCs:seconds=>{for(let t=0;t<seconds;t+=.05)npcs.update(.05);return npcs.snapshot();}};
 }
-joy.addEventListener('pointerdown',e=>{
-  if(stick.pointer!==null)return;
-  e.preventDefault();stick.pointer=e.pointerId;joy.setPointerCapture(e.pointerId);joy.classList.add('active');moveStick(e);
-});
-joy.addEventListener('pointermove',moveStick);
-function releaseStick(e){if(e&&e.pointerId!==stick.pointer)return;stick.x=stick.forward=0;stick.pointer=null;knob.style.transform='translate(0px,0px)';joy.classList.remove('active');}
-for(const event of ['pointerup','pointercancel','lostpointercapture'])joy.addEventListener(event,releaseStick);
-function clearInput(){keys.clear();releaseStick();cameraState.drag=null;}
-window.addEventListener('blur',clearInput);
-document.addEventListener('visibilitychange',()=>{clearInput();lastFrame=performance.now();});
-window.addEventListener('keydown',e=>{if(['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight'].includes(e.code)){e.preventDefault();keys.add(e.code);}});
-window.addEventListener('keyup',e=>keys.delete(e.code));
-
-canvas.addEventListener('pointerdown',e=>{
-  if(cameraState.drag||e.button>0)return;
-  cameraState.drag={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);
-});
-canvas.addEventListener('pointermove',e=>{
-  const d=cameraState.drag;if(!d||d.id!==e.pointerId)return;
-  cameraState.yaw-=(e.clientX-d.x)*.005;
-  cameraState.pitch=THREE.MathUtils.clamp(cameraState.pitch+(e.clientY-d.y)*.004,-.035,.65);
-  d.x=e.clientX;d.y=e.clientY;
-});
-for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>{if(cameraState.drag?.id===e.pointerId)cameraState.drag=null;});
-canvas.addEventListener('wheel',e=>{e.preventDefault();cameraState.distance=THREE.MathUtils.clamp(cameraState.distance+e.deltaY*.004,1.4,4.1);},{passive:false});
-document.addEventListener('contextmenu',e=>e.preventDefault());
-
-// Feature-detected: the same actions as the visible controls, without a
-// dependency on browser agent support or any network service.
-const context=document.modelContext;
-if(context?.registerTool){
-  const lifecycle=new AbortController();
-  const register=tool=>{try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(console.warn);}catch(error){console.warn(error);}};
-  register({name:'read_locomotion_state',description:'Read the character movement state and current run setting.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(){return {...controller.snapshot(),running:runMode,loaded:ready};}});
-  register({name:'set_run_mode',description:'Set the same run toggle shown on the test page.',inputSchema:{type:'object',properties:{enabled:{type:'boolean'}},required:['enabled'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(!input||typeof input.enabled!=='boolean'||Object.keys(input).length!==1)throw new Error('enabled must be a boolean');setRun(input.enabled);return {running:runMode};}});
-  register({name:'reset_character',description:'Return the character to the starting position and switch to walking.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(!input||Object.keys(input).length)throw new Error('No arguments accepted');reset();return controller.snapshot();}});
-  window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
-}
+load();
