@@ -1,7 +1,8 @@
 # luna_15 · 人物移动测试
 
-Jill 模型、四段高跟鞋动画、手机摇杆，以及可离线运行的 Android 测试应用。
+Jill 模型、四段高跟鞋动画、城市街区、手机摇杆，以及可离线运行的 Android 测试应用。
 走路使用 `Female Walk.fbx`；跑步、待机分别替换为 `Running.fbx`、`Idle.fbx`，新增 `Rifle Aiming Idle.fbx` 瞄准待机。
+当前源码已加入 CCity 街区，范围 558 × 234 米，人物约 1.73 米，含建筑阻挡与镜头防穿墙。城市更新只做预览，尚未打入 v2 APK。
 
 ## 手机测试
 
@@ -23,10 +24,11 @@ Jill 模型、四段高跟鞋动画、手机摇杆，以及可离线运行的 An
 | 目录 | 内容 |
 | --- | --- |
 | `web/` | 完整网页框架和 Three.js 本地依赖，构建时还原完整 GLB |
-| `models/` | 原模型及四段动画的无损压缩文件和校验信息 |
+| `models/` | 人物动画与城市场景的无损压缩文件和校验信息 |
 | `android/` | Android 原生 WebView 容器、签名配置、Gradle Wrapper |
 | `scripts/` | 动作烘焙与替换脚本、资源和 APK 完整性检查、移动逻辑检查 |
 | `docs/animation-framework.md` | 动画来源、高跟鞋处理与框架说明 |
+| `docs/city-scene.md` | 城市尺度、资源处理、碰撞范围与素材署名 |
 
 Android 使用 `WebViewAssetLoader` 从应用内资源加载 HTTPS 同源模块，避免 `file://` 的加载限制。
 所有模块使用相对路径，不依赖 import map、CDN 或在线网站。
@@ -38,6 +40,7 @@ python3 scripts/prepare_assets.py
 python3 scripts/check_web.py
 node scripts/check_movement.mjs
 node scripts/check_runtime.mjs
+node scripts/check_city.mjs
 bash android/gradlew -p android assembleDebug
 ```
 
@@ -45,7 +48,7 @@ bash android/gradlew -p android assembleDebug
 完整动画 GLB 无损压缩存放于仓库；构建会自动还原并检查 SHA-256，APK 中仍是原完整 GLB。
 公开的 `android/test-signing.keystore` 仅用于测试，固定测试签名使后续测试版本可覆盖安装；不可用于正式应用。
 
-每次推送到 main，GitHub Actions 自动构建并检查 APK 签名、安装元数据和全部资源字节。
+推送到 main 默认由 GitHub Actions 构建并检查 APK 签名、安装元数据和全部资源字节；本次城市预览提交使用 `[skip ci]`，按请求暂不打包。
 另一个模拟器任务实际安装 APK，在断网状态检查模型载入、原生摇杆触控、双指切换跑步、松杆停止、瞄准待机、视角与重置。
 真机的画面和帧率以手机实际测试为准。
 
@@ -56,5 +59,5 @@ python3 scripts/prepare_assets.py
 python3 -m http.server 8080 --directory web
 ```
 
-当前为平地移动测试框架，不含复杂地形、台阶或角色碰撞。
-Three.js 许可见 `web/vendor/LICENSE-THREE.txt`；角色素材许可遵循原提供文件。
+当前为平地街区移动框架，支持建筑包围盒阻挡，不含复杂地形、台阶攀爬、室内探索或角色间碰撞。
+Three.js 许可见 `web/vendor/LICENSE-THREE.txt`；角色素材许可遵循原提供文件。城市场景由 Neberkenezer 制作，使用 CC BY 4.0，署名与变更说明见 `docs/city-scene.md`。

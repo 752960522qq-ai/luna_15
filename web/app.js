@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
-import { MovementController, MOTION } from './movement.js?v=motion-4-v2';
+import { MovementController, MOTION } from './movement.js?v=city-1';
+import { cityWorld, cameraFraction, groundSampler } from './city.js';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene'),loading=$('loading');
@@ -9,10 +10,19 @@ const keys=new Set();
 const stick={x:0,forward:0,pointer:null};
 const cameraState={yaw:Math.PI+.30,pitch:.22,distance:3.5,foot:false,drag:null};
 let runMode=false,ready=false,mixer,actions={},actor=new THREE.Group(),lastFrame=performance.now(),lastHud=0;
-let renderer,renderFrames=0;
+let renderer,renderFrames=0,world=null,previewCamera=null,sampleGround=null,currentGroundY=0,lastShoeMinimum=null,reframeCamera=null;
 if(new URLSearchParams(location.search).get('diagnostics')==='1'){
   window.__heelMotionSnapshot=()=>({...controller.snapshot(),loaded:ready,running:runMode,
-    animations:Object.keys(actions),weights:controller.weights,frames:renderFrames,footView:cameraState.foot,cameraDistance:cameraState.distance,host:location.hostname});
+    animations:Object.keys(actions),weights:controller.weights,frames:renderFrames,footView:cameraState.foot,cameraDistance:cameraState.distance,host:location.hostname,
+    groundY:currentGroundY,shoeClearance:lastShoeMinimum===null?null:lastShoeMinimum-currentGroundY,
+    city:world?{name:world.name,unit:world.unit,bounds:world.bounds,drawMeshes:world.drawMeshes}:null});
+  // Development-only still rendering. The normal camera and controls keep
+  // their existing close third-person defaults when diagnostics is absent.
+  window.__heelMotionPreviewCamera=value=>{
+    if(value===null){previewCamera=null;return;}
+    for(const key of ['position','target'])if(!Array.isArray(value?.[key])||value[key].length!==3||!value[key].every(Number.isFinite))throw new Error('Expected two camera vectors');
+    previewCamera={position:[...value.position],target:[...value.target]};
+  };
 }
 
 function fail(message,error){
@@ -34,29 +44,53 @@ try{
 
 if(renderer){
   const scene=new THREE.Scene();
-  scene.background=new THREE.Color('#101b27');
-  scene.fog=new THREE.Fog('#101b27',13,40);
-  const camera=new THREE.PerspectiveCamera(43,1,.03,80);
-  const hemi=new THREE.HemisphereLight('#d6eef7','#344351',2.5);scene.add(hemi);
-  const sun=new THREE.DirectionalLight('#fff2de',3.4);sun.position.set(4,7,4);
-  sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
-  sun.shadow.camera.left=-5;sun.shadow.camera.right=5;sun.shadow.camera.top=5;sun.shadow.camera.bottom=-5;
-  sun.shadow.camera.near=.5;sun.shadow.camera.far=18;sun.shadow.bias=-.00015;sun.shadow.normalBias=.008;
+  scene.background=new THREE.Color('#a9c7dd');
+  scene.fog=new THREE.Fog('#a9c7dd',120,550);
+  const camera=new THREE.PerspectiveCamera(43,1,.03,900);
+  const hemi=new THREE.HemisphereLight('#d6eef7','#727b62',2.2);scene.add(hemi);
+  const sun=new THREE.DirectionalLight('#fff2de',3.1);sun.position.set(35,65,25);
+  sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-25;sun.shadow.camera.right=25;sun.shadow.camera.top=25;sun.shadow.camera.bottom=-25;
+  sun.shadow.camera.near=.5;sun.shadow.camera.far=130;sun.shadow.bias=-.0001;sun.shadow.normalBias=.015;
   scene.add(sun,sun.target);
-  const rim=new THREE.DirectionalLight('#79b4db',2.2);rim.position.set(-3,4,-4);scene.add(rim);
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.MeshStandardMaterial({color:'#1a2c38',roughness:.93,metalness:.08}));
-  floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
-  const grid=new THREE.GridHelper(50,50,'#4d8592','#2c4857');grid.position.y=.002;grid.material.transparent=true;grid.material.opacity=.5;scene.add(grid);
-  const origin=new THREE.Mesh(new THREE.RingGeometry(.38,.4,64),new THREE.MeshBasicMaterial({color:'#71dbc9',side:THREE.DoubleSide,transparent:true,opacity:.5}));origin.rotation.x=-Math.PI/2;origin.position.y=.003;scene.add(origin);
   scene.add(actor);
 
-  const target=new THREE.Vector3(0,1,0),cameraDesired=new THREE.Vector3(),look=new THREE.Vector3(),lightTarget=new THREE.Vector3(),lightOffset=new THREE.Vector3(4,7,4);
+  const target=new THREE.Vector3(0,1,0),cameraDesired=new THREE.Vector3(),look=new THREE.Vector3(),lightTarget=new THREE.Vector3(),lightOffset=new THREE.Vector3(35,65,25);
+  reframeCamera=()=>{camera.position.set(0,0,0);look.set(controller.x,(sampleGround?.(controller.x,controller.z)||0)+1.02,controller.z);};
   const contactVertex=new THREE.Vector3();
+  const leftContact=new THREE.Vector3(),rightContact=new THREE.Vector3();
   let shoeContact=null,headAnchor=null;
   function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
   resize();window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
 
   const loader=new GLTFLoader();
+  let cityLoaded=false,modelLoaded=false,loadFailed=false;
+  const progressByAsset={character:0,city:0};
+  function assetProgress(name,event){
+    progressByAsset[name]=event.total?event.loaded/event.total:0;
+    const percent=Math.round(progressByAsset.character*61+progressByAsset.city*39);
+    $('load-progress').style.width=`${percent}%`;
+    $('load-detail').textContent=`人物与城市 ${percent}%`;
+  }
+  function finishLoading(){
+    if(!cityLoaded||!modelLoaded||loadFailed)return;
+    ready=true;loading.hidden=true;$('load-progress').style.width='100%';
+    setAnimations();mixer.update(0);actor.updateMatrixWorld(true);
+  }
+  loader.load('./assets/city-neighborhood.glb?v=city-1',gltf=>{
+    try{
+      world=cityWorld(gltf);
+      gltf.scene.traverse(obj=>{
+        if(!obj.isMesh)return;
+        const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+        for(const mat of mats)if(mat.map)mat.map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+      });
+      scene.add(gltf.scene);sampleGround=groundSampler(gltf.scene);controller.setWorld(world);
+      cameraState.yaw=world.spawn.yaw+Math.PI+.30;
+      reframeCamera();
+      cityLoaded=true;progressByAsset.city=1;finishLoading();
+    }catch(error){loadFailed=true;fail('城市加载失败，请点击重新加载。',error);}
+  },event=>assetProgress('city',event),error=>{loadFailed=true;fail('城市加载失败，请点击重新加载。',error);});
   loader.load('./assets/jill-heels-locomotion.glb?v=motion-4-v2',gltf=>{
     actor.add(gltf.scene);
     actor.updateMatrixWorld(true);
@@ -76,7 +110,7 @@ if(renderer){
     });
     // During crossfades, quaternion interpolation can lower the sole a little.
     // Sample the actual shoe skin, then raise the character just enough to
-    // keep the sole above this flat test floor. Never pull airborne feet down.
+    // keep the sole above the city's flat road. Never pull airborne feet down.
     const shoe=gltf.scene.getObjectByName('Bodypl2020_Boots_Mat');
     if(shoe?.isSkinnedMesh){
       const position=shoe.geometry.getAttribute('position'),indices=[];
@@ -92,18 +126,12 @@ if(renderer){
     mixer=new THREE.AnimationMixer(gltf.scene);
     for(const name of ['Idle_Heels','Walk_Heels','Run_Heels','Rifle_Aim_Idle']){
       const clip=THREE.AnimationClip.findByName(gltf.animations,name);
-      if(!clip){fail('动画文件不完整，请重新载入。');return;}
+      if(!clip){loadFailed=true;fail('动画文件不完整，请重新载入。');return;}
       const action=mixer.clipAction(clip);action.play();action.setEffectiveWeight(name==='Idle_Heels'?1:0);
       actions[name]={action,duration:clip.duration};
     }
-    ready=true;loading.hidden=true;
-    $('load-progress').style.width='100%';
-    setAnimations();mixer.update(0);
-    actor.updateMatrixWorld(true);
-  },progress=>{
-    if(progress.total){const p=Math.round(progress.loaded/progress.total*100);$('load-progress').style.width=`${p}%`;$('load-detail').textContent=`载入模型 ${p}%`;}
-    else $('load-detail').textContent=`已载入 ${(progress.loaded/1048576).toFixed(1)} MB`;
-  },error=>fail('模型加载失败，请点击重新加载。',error));
+    modelLoaded=true;progressByAsset.character=1;finishLoading();
+  },event=>assetProgress('character',event),error=>{loadFailed=true;fail('模型加载失败，请点击重新加载。',error);});
 
   function setAnimations(){
     const weights=controller.weights;
@@ -125,7 +153,8 @@ if(renderer){
     }
     if(ready){
       controller.update(dt,input,cameraState.yaw,runMode||keys.has('ShiftLeft')||keys.has('ShiftRight'));
-      actor.position.set(controller.x,0,controller.z);actor.rotation.y=controller.yaw;
+      currentGroundY=sampleGround?.(controller.x,controller.z)||0;
+      actor.position.set(controller.x,currentGroundY,controller.z);actor.rotation.y=controller.yaw;
       setAnimations();mixer.update(0);
       actor.updateMatrixWorld(true);
       if(headAnchor){
@@ -134,26 +163,38 @@ if(renderer){
         local.decompose(head.position,head.quaternion,head.scale);head.updateMatrixWorld(true);
       }
       if(shoeContact){
-        let minimum=Infinity;
+        let minimum=Infinity,leftMinimum=Infinity,rightMinimum=Infinity;
         const {mesh,position,indices}=shoeContact;
         for(const i of indices){
           contactVertex.fromBufferAttribute(position,i);mesh.applyBoneTransform(i,contactVertex);mesh.localToWorld(contactVertex);
           minimum=Math.min(minimum,contactVertex.y);
+          if(position.getX(i)<0){
+            if(contactVertex.y<leftMinimum){leftMinimum=contactVertex.y;leftContact.copy(contactVertex);}
+          }else if(contactVertex.y<rightMinimum){rightMinimum=contactVertex.y;rightContact.copy(contactVertex);}
         }
-        if(minimum<.001){actor.position.y+=.001-minimum;actor.updateMatrixWorld(true);}
+        const lift=Math.max(0,currentGroundY+.001-minimum,
+          Number.isFinite(leftMinimum)?(sampleGround?.(leftContact.x,leftContact.z)||0)+.001-leftMinimum:0,
+          Number.isFinite(rightMinimum)?(sampleGround?.(rightContact.x,rightContact.z)||0)+.001-rightMinimum:0);
+        if(lift){actor.position.y+=lift;actor.updateMatrixWorld(true);}
+        lastShoeMinimum=minimum+lift;
       }
-      lightTarget.set(controller.x,0,controller.z);sun.target.position.copy(lightTarget);sun.position.copy(lightTarget).add(lightOffset);
+      lightTarget.set(controller.x,currentGroundY,controller.z);sun.target.position.copy(lightTarget);sun.position.copy(lightTarget).add(lightOffset);
       if(now-lastHud>100){$('speed').textContent=controller.speed.toFixed(2);$('motion-state').textContent=controller.state;$('speed-fill').style.width=`${controller.speed/MOTION.runSpeed*100}%`;lastHud=now;}
     }
     const height=cameraState.foot ? .28 : 1.02;
-    target.set(controller.x,height,controller.z);
+    target.set(controller.x,currentGroundY+height,controller.z);
     const distance=cameraState.foot ? 1.5 : cameraState.distance;
     const pitch=cameraState.foot ? .105 : cameraState.pitch;
     const narrow=Math.max(1,Math.min(1.45,1/camera.aspect));
     cameraDesired.set(target.x+Math.sin(cameraState.yaw)*distance*Math.cos(pitch)*narrow,target.y+Math.sin(pitch)*distance,target.z+Math.cos(cameraState.yaw)*distance*Math.cos(pitch)*narrow);
+    cameraDesired.lerpVectors(target,cameraDesired,cameraFraction(world,target,cameraDesired));
+    cameraDesired.y=Math.max(currentGroundY+.22,cameraDesired.y);
     if(camera.position.lengthSq()===0)camera.position.copy(cameraDesired);
     else camera.position.lerp(cameraDesired,1-Math.exp(-dt*9));
+    // Immediately correct an obstructed interpolated position after a turn.
+    camera.position.lerpVectors(target,camera.position,cameraFraction(world,target,camera.position));
     look.lerp(target,1-Math.exp(-dt*12));camera.lookAt(look);
+    if(previewCamera){camera.position.fromArray(previewCamera.position);camera.lookAt(new THREE.Vector3().fromArray(previewCamera.target));}
     renderer.render(scene,camera);renderFrames++;
   }
   requestAnimationFrame(frame);
@@ -182,7 +223,7 @@ function bindToggle(button,toggle){
 bindToggle($('run'),()=>setRun(!runMode));
 function setAim(value){controller.setAim(value);$('aim').setAttribute('aria-pressed',String(controller.aiming));}
 bindToggle($('aim'),()=>setAim(!controller.aiming));
-function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=Math.PI+.30;cameraState.pitch=.22;cameraState.distance=3.5;actor.position.set(0,0,0);actor.rotation.y=0;}
+function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=(world?.spawn.yaw||0)+Math.PI+.30;cameraState.pitch=.22;cameraState.distance=3.5;actor.position.set(controller.x,0,controller.z);actor.rotation.y=controller.yaw;reframeCamera?.();}
 $('reset').addEventListener('click',reset);
 $('foot-view').addEventListener('click',()=>{cameraState.foot=!cameraState.foot;$('foot-view').setAttribute('aria-pressed',String(cameraState.foot));$('foot-view').textContent=cameraState.foot?'全身视角':'脚部视角';});
 

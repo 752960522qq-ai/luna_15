@@ -1,0 +1,329 @@
+{
+  "fileName": "city-neighborhood.glb",
+  "archiveName": "city-neighborhood.glb.gz",
+  "byteLength": 13083680,
+  "sha256": "acfee8c364015932d64533f9f3a3046fc91748d46c5e52d31f578927a440ca86",
+  "compressedSha256": "e8eecba64d3836bf02e2219ecac0658483f8370e72115ff48c7a13fca57ce0de",
+  "world": {
+    "name": "CCity Building Set 1",
+    "unit": "metre",
+    "sourceUnitToMetres": 0.01,
+    "sourceSpawn": [
+      -14300.0,
+      0.0,
+      -8800.0
+    ],
+    "spawn": {
+      "x": 0,
+      "z": 0,
+      "yaw": 3.141592653589793
+    },
+    "bounds": {
+      "minX": -243.0,
+      "maxX": 315.0,
+      "minZ": -136.5,
+      "maxZ": 97.5000048828125
+    },
+    "groundY": 0,
+    "characterRadius": 0.26,
+    "obstacles": [
+      {
+        "name": "LM_Paramount1",
+        "min": [
+          -81.325,
+          0.2,
+          -10.58767
+        ],
+        "max": [
+          -62.78658,
+          20.79222,
+          10.76793
+        ]
+      },
+      {
+        "name": "Filler_GunShop",
+        "min": [
+          -44.80449,
+          0.2,
+          -10.5
+        ],
+        "max": [
+          -8.59667,
+          17.68886,
+          9.68692
+        ]
+      },
+      {
+        "name": "LM_Liquor",
+        "min": [
+          -63.51,
+          0.2,
+          -10.76977
+        ],
+        "max": [
+          -44.61081,
+          16.10104,
+          10.00496
+        ]
+      },
+      {
+        "name": "Filler_Housing",
+        "min": [
+          44.7207,
+          0.2,
+          -46.31638
+        ],
+        "max": [
+          63.24394,
+          17.68886,
+          -27.72075
+        ]
+      },
+      {
+        "name": "group",
+        "min": [
+          19.50182,
+          0.2,
+          4.53863
+        ],
+        "max": [
+          23.21661,
+          1.32808,
+          6.60591
+        ]
+      },
+      {
+        "name": "LM_Clinic2",
+        "min": [
+          169.61908,
+          0.2,
+          -10.73003
+        ],
+        "max": [
+          207.2,
+          19.70907,
+          7.83977
+        ]
+      },
+      {
+        "name": "group84",
+        "min": [
+          -135.26039,
+          0.2,
+          -11.11393
+        ],
+        "max": [
+          -116.82424,
+          14.12154,
+          9.48803
+        ]
+      },
+      {
+        "name": "Projects",
+        "min": [
+          -207.0,
+          0.2,
+          -10.49999
+        ],
+        "max": [
+          -153.0,
+          31.85664,
+          7.5
+        ]
+      },
+      {
+        "name": "Projects1",
+        "min": [
+          -63.0,
+          0.2,
+          -46.49998
+        ],
+        "max": [
+          -9.0,
+          31.85664,
+          -28.49999
+        ]
+      },
+      {
+        "name": "LM_Paramount9",
+        "min": [
+          8.91233,
+          0.2,
+          -28.71342
+        ],
+        "max": [
+          30.26793,
+          20.79222,
+          -10.175
+        ]
+      },
+      {
+        "name": "LM_Laundrette",
+        "min": [
+          9.0,
+          0.2,
+          -10.49999
+        ],
+        "max": [
+          27.0,
+          9.28618,
+          7.5
+        ]
+      },
+      {
+        "name": "FFactory",
+        "min": [
+          81.0,
+          0.2,
+          -10.5
+        ],
+        "max": [
+          135.0,
+          17.96208,
+          7.5
+        ]
+      },
+      {
+        "name": "FFactory1",
+        "min": [
+          117.0,
+          0.2,
+          -64.5
+        ],
+        "max": [
+          135.0,
+          17.96208,
+          -10.5
+        ]
+      },
+      {
+        "name": "LM_PawnShop1",
+        "min": [
+          -117.0,
+          0.2,
+          -10.49999
+        ],
+        "max": [
+          -99.0,
+          15.58302,
+          8.01396
+        ]
+      },
+      {
+        "name": "Projects2",
+        "min": [
+          9.0,
+          0.2,
+          -118.5
+        ],
+        "max": [
+          26.99999,
+          31.85664,
+          -64.5
+        ]
+      },
+      {
+        "name": "LM_PawnShop2",
+        "min": [
+          9.00001,
+          0.2,
+          -46.5
+        ],
+        "max": [
+          27.51396,
+          15.58302,
+          -28.5
+        ]
+      },
+      {
+        "name": "Filler_Housing1",
+        "min": [
+          80.79953,
+          0.2,
+          -29.01724
+        ],
+        "max": [
+          99.39516,
+          17.68886,
+          -10.494
+        ]
+      },
+      {
+        "name": "group87",
+        "min": [
+          -63.34491,
+          0.2,
+          -82.59979
+        ],
+        "max": [
+          -44.90876,
+          14.12154,
+          -61.99783
+        ]
+      },
+      {
+        "name": "Filler_Housing2",
+        "min": [
+          -63.46994,
+          0.2,
+          -29.58374
+        ],
+        "max": [
+          -44.87431,
+          17.68886,
+          -11.0605
+        ]
+      },
+      {
+        "name": "group88",
+        "min": [
+          43.14213,
+          0.2,
+          -82.7601
+        ],
+        "max": [
+          63.74408,
+          14.12154,
+          -64.32395
+        ]
+      },
+      {
+        "name": "Filler_GunShop1",
+        "min": [
+          45.19551,
+          0.2,
+          -118.5
+        ],
+        "max": [
+          81.40333,
+          17.68886,
+          -98.31308
+        ]
+      },
+      {
+        "name": "LM_PawnShop3",
+        "min": [
+          63.0,
+          0.2,
+          -82.4997
+        ],
+        "max": [
+          81.0,
+          15.58302,
+          -63.98575
+        ]
+      }
+    ],
+    "sourcePrimitives": 1357,
+    "drawMeshes": 22,
+    "triangles": 31050,
+    "vehicleScaleCorrection": 0.55,
+    "sourceSha256": "9289894c493e1cd5c6a3c799d6ca17b66bd7db8a1bbc32f712efd23ed83ea039",
+    "attribution": {
+      "author": "Neberkenezer (https://sketchfab.com/neberkenezer)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/ccity-building-set-1-a2d5c7bfcc2148fb8994864c43dfcc97",
+      "title": "CCity Building Set 1"
+    }
+  }
+}

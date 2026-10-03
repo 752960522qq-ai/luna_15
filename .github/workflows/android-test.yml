@@ -30,6 +30,7 @@ jobs:
           python3 scripts/check_web.py | tee reports/offline-assets.json
           node scripts/check_movement.mjs | tee reports/movement.json
           node scripts/check_runtime.mjs | tee reports/animation-runtime.json
+          node scripts/check_city.mjs | tee reports/city.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

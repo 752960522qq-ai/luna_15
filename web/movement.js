@@ -11,7 +11,8 @@ export class MovementController {
     this.runStride=stride;
   }
   setAim(enabled) { this.aiming=!!enabled; }
-  reset() { this.x=0; this.z=0; this.vx=0; this.vz=0; this.yaw=0; this.phase=0; this.runMix=0; this.moveMix=0; this.aimMix=0; this.aiming=false; this.elapsed=0; }
+  setWorld(world) { this.world=world; this.reset(); }
+  reset() { this.x=this.world?.spawn.x||0; this.z=this.world?.spawn.z||0; this.vx=0; this.vz=0; this.yaw=this.world?.spawn.yaw||0; this.phase=0; this.runMix=0; this.moveMix=0; this.aimMix=0; this.aiming=false; this.elapsed=0; }
   update(dt, input, cameraYaw, running) {
     dt=Math.min(Math.max(dt,0),.05); this.elapsed+=dt;
     let ix=Number.isFinite(input.x)?input.x:0, iz=Number.isFinite(input.forward)?input.forward:0;
@@ -27,14 +28,36 @@ export class MovementController {
     const step=change?Math.min(1,acceleration*dt/change):0;
     this.vx+=dx*step;this.vz+=dz*step;
     if(Math.hypot(this.vx,this.vz)<.003&&strength===0)this.vx=this.vz=0;
-    this.x+=this.vx*dt;this.z+=this.vz*dt;
-    // Stop at the test floor edge without wrapping or teleporting.
-    const radius=Math.hypot(this.x,this.z);
-    if(radius>MOTION.arenaRadius){
-      const nx=this.x/radius,nz=this.z/radius;
-      this.x=nx*MOTION.arenaRadius;this.z=nz*MOTION.arenaRadius;
-      const outward=this.vx*nx+this.vz*nz;
-      if(outward>0){this.vx-=nx*outward;this.vz-=nz*outward;}
+    const previousX=this.x,previousZ=this.z;
+    if(this.world){
+      const {bounds,obstacles,characterRadius:r=.26}=this.world;
+      // Move each axis separately to slide along facades. A frame can travel
+      // at most 0.12 m, far less than the thinnest building footprint.
+      this.x=Math.max(bounds.minX+r,Math.min(bounds.maxX-r,this.x+this.vx*dt));
+      for(const box of obstacles){
+        if(this.z<=box.min[2]-r||this.z>=box.max[2]+r)continue;
+        if(this.x>box.min[0]-r&&this.x<box.max[0]+r){
+          this.x=this.vx>0?box.min[0]-r:box.max[0]+r;
+        }
+      }
+      this.z=Math.max(bounds.minZ+r,Math.min(bounds.maxZ-r,this.z+this.vz*dt));
+      for(const box of obstacles){
+        if(this.x<=box.min[0]-r||this.x>=box.max[0]+r)continue;
+        if(this.z>box.min[2]-r&&this.z<box.max[2]+r){
+          this.z=this.vz>0?box.min[2]-r:box.max[2]+r;
+        }
+      }
+      // Animate only the distance actually travelled, including wall sliding.
+      if(dt>0){this.vx=(this.x-previousX)/dt;this.vz=(this.z-previousZ)/dt;}
+    }else{
+      this.x+=this.vx*dt;this.z+=this.vz*dt;
+      const radius=Math.hypot(this.x,this.z);
+      if(radius>MOTION.arenaRadius){
+        const nx=this.x/radius,nz=this.z/radius;
+        this.x=nx*MOTION.arenaRadius;this.z=nz*MOTION.arenaRadius;
+        const outward=this.vx*nx+this.vz*nz;
+        if(outward>0){this.vx-=nx*outward;this.vz-=nz*outward;}
+      }
     }
     const speed=this.speed;
     if(speed>.025){

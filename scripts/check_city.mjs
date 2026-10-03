@@ -1,0 +1,47 @@
+// Load the actual baked city, then test streets, facades and camera occlusion.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import * as THREE from '../web/vendor/three.module.js';
+import {GLTFLoader} from '../web/vendor/GLTFLoader.js';
+import {MovementController} from '../web/movement.js';
+import {cityWorld,cameraFraction,groundSampler} from '../web/city.js';
+
+const bytes=fs.readFileSync(new URL('../web/assets/city-neighborhood.glb',import.meta.url));
+const loader=new GLTFLoader();
+loader.register(()=>({name:'headless-textures',loadTexture:()=>Promise.resolve(null)}));
+const gltf=await loader.parseAsync(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),'');
+const world=cityWorld(gltf),c=new MovementController();c.setWorld(world);
+let meshes=0,triangles=0;
+gltf.scene.traverse(obj=>{
+  if(!obj.isMesh)return;
+  meshes++;triangles+=obj.geometry.index.count/3;
+  obj.geometry.computeBoundingBox();
+  assert.ok(obj.geometry.boundingBox.min.toArray().every(Number.isFinite));
+});
+assert.equal(meshes,22);assert.equal(triangles,31050);
+assert.equal(world.bounds.maxX-world.bounds.minX,558);
+assert.ok(Math.abs(world.bounds.maxZ-world.bounds.minZ-234)<.0001);
+assert.equal(world.groundY,0);
+const groundHeight=groundSampler(gltf.scene);
+assert.equal(groundHeight(0,0),0,'asphalt surface at the spawn must be exactly Y=0');
+assert.ok(Math.abs(groundHeight(8,0)-.2)<1e-5,'feet follow the actual 20 cm pavement height');
+assert.ok(!world.obstacles.some(box=>c.x>box.min[0]-.26&&c.x<box.max[0]+.26&&c.z>box.min[2]-.26&&c.z<box.max[2]+.26),'spawn is on an open street');
+const advance=(frames,input,yaw=0,run=false)=>{for(let i=0;i<frames;i++)c.update(1/60,input,yaw,run);};
+advance(1800,{x:1,forward:0});
+const laundry=world.obstacles.find(box=>box.name==='LM_Laundrette');
+assert.ok(Math.abs(c.x-(laundry.min[0]-.26))<1e-5,'walking stops at the actual laundrette facade');
+assert.equal(c.speed,0,'blocked movement stops animation travel');
+assert.equal(c.state,'待机');
+advance(180,{x:1,forward:1});
+assert.ok(c.z<-1&&Math.abs(c.x-(laundry.min[0]-.26))<1e-5,'diagonal movement slides along the facade');
+c.reset();advance(1000,{x:0,forward:1},0,true);
+assert.ok(c.z<-25,'streets are no longer limited to the old 22-metre test circle');
+const unobstructed=cameraFraction(world,{x:0,y:1,z:0},{x:0,y:2,z:3.5});
+const blocked=cameraFraction(world,{x:8,y:1,z:0},{x:12,y:2,z:0});
+assert.equal(unobstructed,1);assert.ok(blocked>0&&blocked<.3,'camera boom stops before the facade');
+c.reset();c.x=world.bounds.maxX-.26;c.z=world.bounds.maxZ-2;
+advance(300,{x:1,forward:0},0,true);
+assert.ok(c.x<=world.bounds.maxX-.26&&c.speed<1e-6,'map boundary prevents leaving the ground');
+c.reset();assert.equal(c.x,0);assert.equal(c.z,0);
+console.log(JSON.stringify({status:'passed',staticMeshes:meshes,triangles,
+  sizeMetres:[558,234],obstacles:world.obstacles.length,groundY:world.groundY},null,2));

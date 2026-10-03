@@ -23,6 +23,14 @@ for name, file in sources.items():
     assert clips[name]['extras']['sourceFile'] == file
     assert clips[name]['extras']['inPlace'] is True
 
+city = (WEB / 'assets/city-neighborhood.glb').read_bytes()
+city_manifest = json.loads((ROOT / 'models/city-manifest.json').read_text())
+assert hashlib.sha256(city).hexdigest() == city_manifest['sha256']
+city_json_length = struct.unpack_from('<I',city,12)[0]
+city_gltf = json.loads(city[20:20+city_json_length])
+assert all('uri' not in image for image in city_gltf['images']), 'city textures must be embedded'
+assert city_gltf['scenes'][0]['extras']['unit'] == 'metre'
+
 refs = 0
 for path in WEB.rglob('*.js'):
     source = re.sub(r'/\*.*?\*/', '', path.read_text(), flags=re.S)
@@ -48,4 +56,4 @@ assert (ROOT / 'android/app/../../web').resolve() == WEB
 assert "minSdk 26" in build
 print(json.dumps({'status': 'passed', 'localModuleReferences': refs,
     'modelSha256': hashlib.sha256(data).hexdigest(), 'animations': list(clips),
-    'offline': True, 'androidMinSdk': 26}, indent=2))
+    'offline': True, 'citySha256':city_manifest['sha256'], 'androidMinSdk': 26}, indent=2))
