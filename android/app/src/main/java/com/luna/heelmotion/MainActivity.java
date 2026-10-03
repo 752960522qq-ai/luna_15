@@ -63,6 +63,9 @@ public final class MainActivity extends Activity {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setSupportZoom(false);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
@@ -112,6 +115,7 @@ public final class MainActivity extends Activity {
             }
         });
         container.addView(webView, new FrameLayout.LayoutParams(-1, -1));
+        webView.requestFocus();
         boolean diagnostics = BuildConfig.DEBUG && getIntent().getBooleanExtra("diagnostics", false);
         webView.loadUrl(PAGE + (diagnostics ? "?diagnostics=1" : ""));
     }

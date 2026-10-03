@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 public final class MovementSmokeTest {
     private MainActivity activity;
     private WebView webView;
+    private String lastNativeTap = "none";
     private Instrumentation getInstrumentation() { return InstrumentationRegistry.getInstrumentation(); }
 
     private String evaluate(String expression) throws Exception {
@@ -61,7 +62,8 @@ public final class MovementSmokeTest {
             if (mode.equals(value.optString("mode"))) return value;
             SystemClock.sleep(200);
         } while (SystemClock.uptimeMillis() < end);
-        fail("Did not enter " + mode + ": " + value);
+        fail("Did not enter " + mode + "; last tap " + lastNativeTap
+            + "; input " + evaluate("JSON.stringify(window.__nativeTapEvents)") + ": " + value);
         return value;
     }
     private JSONObject waitFor(String state, long timeout) throws Exception {
@@ -89,7 +91,7 @@ public final class MovementSmokeTest {
     private float[] point(String element, double yFraction) throws Exception {
         JSONObject rect = object("(()=>{const r=document.getElementById('" + element
             + "').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height*"
-            + yFraction + ",width:innerWidth};})()");
+            + yFraction + ",width:innerWidth,height:innerHeight,dpr:devicePixelRatio,clientWidth:document.documentElement.clientWidth};})()");
         int[] origin = new int[2];
         int[] width = new int[1];
         getInstrumentation().runOnMainSync(() -> {
@@ -97,8 +99,12 @@ public final class MovementSmokeTest {
             width[0] = webView.getWidth();
         });
         double scale = width[0] / rect.getDouble("width");
-        return new float[]{origin[0] + (float)(rect.getDouble("x") * scale),
+        float[] result = new float[]{origin[0] + (float)(rect.getDouble("x") * scale),
             origin[1] + (float)(rect.getDouble("y") * scale)};
+        lastNativeTap = element + " css=" + rect + " viewWidth=" + width[0]
+            + " origin=" + origin[0] + "," + origin[1] + " scale=" + scale
+            + " screen=" + result[0] + "," + result[1];
+        return result;
     }
     private void touch(long start, int action, float[] xy) {
         MotionEvent.PointerProperties property = new MotionEvent.PointerProperties();
@@ -136,6 +142,7 @@ public final class MovementSmokeTest {
         // JS readiness can precede Chromium's compositor/hit-test update,
         // particularly during the first heavy GLB frame on SwiftShader.
         visualReady();
+        evaluate("window.__nativeTapEvents=[];['pointerdown','pointerup','click'].forEach(type=>document.addEventListener(type,e=>window.__nativeTapEvents.push({type:e.type,target:e.target.id,x:e.clientX,y:e.clientY}),{once:true,capture:true}))");
         float[] xy = point(id, .5);
         System.out.println("Native tap " + id + " at " + xy[0] + "," + xy[1]);
         long start = SystemClock.uptimeMillis();
