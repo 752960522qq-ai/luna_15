@@ -161,9 +161,26 @@ if(renderer){
 }
 
 function setRun(value){runMode=!!value;$('run').setAttribute('aria-pressed',String(runMode));$('run-hint').textContent=runMode?'再次点击走路':'点击切换';}
-$('run').addEventListener('click',()=>setRun(!runMode));
+// Use each touch pointer directly so another finger can toggle while the
+// stick is held, and suppress the duplicate compatibility click.
+function bindToggle(button,toggle){
+  let touchClickPending=false;
+  button.addEventListener('pointerdown',e=>{
+    touchClickPending=e.pointerType==='touch'||e.pointerType==='pen';
+    if(!touchClickPending)return;
+    e.preventDefault();toggle();
+  });
+  button.addEventListener('click',e=>{
+    // A primary touch may also synthesize a click. Keyboard/programmatic
+    // clicks have detail=0 and retain normal button accessibility.
+    if(e.detail>0&&touchClickPending){touchClickPending=false;e.preventDefault();return;}
+    touchClickPending=false;
+    toggle();
+  });
+}
+bindToggle($('run'),()=>setRun(!runMode));
 function setAim(value){controller.setAim(value);$('aim').setAttribute('aria-pressed',String(controller.aiming));}
-$('aim').addEventListener('click',()=>setAim(!controller.aiming));
+bindToggle($('aim'),()=>setAim(!controller.aiming));
 function reset(){controller.reset();setRun(false);setAim(false);clearInput();cameraState.yaw=Math.PI+.30;cameraState.pitch=.22;cameraState.distance=3.5;actor.position.set(0,0,0);actor.rotation.y=0;}
 $('reset').addEventListener('click',reset);
 $('foot-view').addEventListener('click',()=>{cameraState.foot=!cameraState.foot;$('foot-view').setAttribute('aria-pressed',String(cameraState.foot));$('foot-view').textContent=cameraState.foot?'全身视角':'脚部视角';});

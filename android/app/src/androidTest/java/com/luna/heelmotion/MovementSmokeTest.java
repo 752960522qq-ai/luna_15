@@ -54,6 +54,17 @@ public final class MovementSmokeTest {
         fail("Did not reach " + state + ": " + value);
         return value;
     }
+    private void waitForWeight(String clip, double minimum, long timeout) throws Exception {
+        long end = SystemClock.uptimeMillis() + timeout;
+        JSONObject value = null;
+        do {
+            value = snapshot();
+            JSONObject weights = value.optJSONObject("weights");
+            if (weights != null && weights.optDouble(clip) >= minimum) return;
+            SystemClock.sleep(200);
+        } while (SystemClock.uptimeMillis() < end);
+        fail("Animation weight did not reach " + minimum + " for " + clip + ": " + value);
+    }
     private float[] point(String element, double yFraction) throws Exception {
         JSONObject rect = object("(()=>{const r=document.getElementById('" + element
             + "').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height*"
@@ -134,7 +145,7 @@ public final class MovementSmokeTest {
             touch(aimStart, MotionEvent.ACTION_UP, aimButton);
             JSONObject aiming = waitFor("瞄准待机", 20000);
             assertTrue("Native touch selects rifle aim idle", aiming.getBoolean("aiming"));
-            SystemClock.sleep(1200);
+            waitForWeight("Rifle_Aim_Idle", .99, 20000);
             assertTrue("Aim clip receives the stationary weight",
                 snapshot().getJSONObject("weights").getDouble("Rifle_Aim_Idle") > .99);
             evaluate("document.getElementById('foot-view').click()");
