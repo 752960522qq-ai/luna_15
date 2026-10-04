@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "outfits": 3,
+  "slots": 2,
+  "animationPoses": 300,
+  "minimumShoeClearanceM": 0.000999999395675289,
+  "maximumGroundLiftM": 0.02027777226057293,
+  "existingSaveMigration": true,
+  "originalBodyRestored": true,
+  "sourceSha256": "cad87d108d27ff0f49311887174946fbe5f5bad4c80b1019a53b367575ffb67a"
+}

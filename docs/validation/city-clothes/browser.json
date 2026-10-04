@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "missions": [
+    "new-life",
+    "delivery",
+    "nightlife"
+  ],
+  "money": 1120,
+  "outfit": {
+    "preset": "dress-dorsay",
+    "top": null,
+    "bottom": null,
+    "shoes": "dorsay-shoes",
+    "dress": "city-dress",
+    "accessory": null
+  },
+  "wardrobe": {
+    "heelPosture": true,
+    "topMeshes": 0,
+    "shoeMeshes": 2,
+    "originalHeelsVisible": false
+  },
+  "outfitParts": {
+    "ada-top": 0,
+    "ada-shoes": 0,
+    "dorsay-shoes": 2,
+    "city-dress": 1
+  },
+  "independentAdaOutfits": 3,
+  "newClothingOutfits": 3,
+  "independentShoeSlot": true,
+  "eastFemaleDialog": true,
+  "restored": true,
+  "multiTouch": true,
+  "layouts": [
+    640,
+    866,
+    1280
+  ],
+  "npcCount": 12,
+  "npcInvalidPositions": 0,
+  "browserErrors": [],
+  "city": {
+    "name": "CCity Building Set 1",
+    "unit": "metre",
+    "scale": 0.72,
+    "bounds": {
+      "minX": -174.95999999999998,
+      "maxX": 277.16128577088,
+      "minZ": -98.28,
+      "maxZ": 80.01517797733506
+    },
+    "drawMeshes": 119
+  },
+  "offline": true
+}

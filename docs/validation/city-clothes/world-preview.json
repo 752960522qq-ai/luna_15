@@ -1,0 +1,76 @@
+{
+  "status": "passed",
+  "errors": [],
+  "views": [
+    {
+      "player": {
+        "x": 0,
+        "y": 0,
+        "z": 9,
+        "yaw": 3.141592653589793
+      },
+      "outfit": {
+        "preset": "dress-dorsay",
+        "top": null,
+        "bottom": null,
+        "shoes": "dorsay-shoes",
+        "dress": "city-dress",
+        "accessory": null
+      },
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "city": {
+        "name": "CCity Building Set 1",
+        "unit": "metre",
+        "scale": 0.72,
+        "bounds": {
+          "minX": -174.95999999999998,
+          "maxX": 277.16128577088,
+          "minZ": -98.28,
+          "maxZ": 80.01517797733506
+        },
+        "drawMeshes": 119
+      },
+      "drawCalls": 191,
+      "shoeClearance": 0.001
+    },
+    {
+      "player": {
+        "x": 245,
+        "y": 0.0019216701147863444,
+        "z": 0,
+        "yaw": 3.141592653589793
+      },
+      "outfit": {
+        "preset": "dress-dorsay",
+        "top": null,
+        "bottom": null,
+        "shoes": "dorsay-shoes",
+        "dress": "city-dress",
+        "accessory": null
+      },
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "city": {
+        "name": "CCity Building Set 1",
+        "unit": "metre",
+        "scale": 0.72,
+        "bounds": {
+          "minX": -174.95999999999998,
+          "maxX": 277.16128577088,
+          "minZ": -98.28,
+          "maxZ": 80.01517797733506
+        },
+        "drawMeshes": 119
+      },
+      "drawCalls": 185,
+      "shoeClearance": 0.0010000462334572406
+    }
+  ]
+}

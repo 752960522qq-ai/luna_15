@@ -1,5 +1,6 @@
 """Check offline modules, Android packaging, and the exact supplied animation."""
 import hashlib
+import gzip
 import json
 from pathlib import Path
 import re
@@ -57,6 +58,41 @@ for name, metadata in ada['assets'].items():
     assert all('uri' not in image for image in document.get('images', []))
     assert all('uri' not in buffer for buffer in document['buffers'])
 
+additional_assets = 0
+def check_embedded(binary, metadata):
+    assert len(binary) == metadata['byteLength']
+    assert hashlib.sha256(binary).hexdigest() == metadata['sha256']
+    n = struct.unpack_from('<I', binary, 12)[0]
+    document = json.loads(binary[20:20+n])
+    assert all('uri' not in image for image in document.get('images', []))
+    assert all('uri' not in buffer for buffer in document['buffers'])
+    return document
+
+wardrobe = json.loads((ROOT / 'models/new-wardrobe-manifest.json').read_text())
+for name, metadata in wardrobe['assets'].items():
+    document = check_embedded((WEB / 'assets' / name).read_bytes(), metadata)
+    assert document['extras']['itemId'] == name.removesuffix('.glb')
+    assert document['extras']['bindJointNames']
+    additional_assets += 1
+
+female = json.loads((WEB / 'assets/npcs/female-manifest.json').read_text())
+assert len(female['citizens']) == 6
+for metadata in female['citizens']:
+    document = check_embedded((WEB / metadata['path']).read_bytes(), metadata)
+    assert len(document['skins']) == 1 and len(document['skins'][0]['joints']) == 57
+    assert {a['name'] for a in document['animations']} == {'Citizen_Idle', 'Citizen_Walk', 'Citizen_Talk'}
+    additional_assets += 1
+
+district = json.loads((ROOT / 'models/city-district-manifest.json').read_text())
+document = check_embedded((WEB / 'assets' / district['fileName']).read_bytes(), district)
+archive = (ROOT / 'models' / district['archiveName']).read_bytes()
+assert hashlib.sha256(archive).hexdigest() == district['compressedSha256']
+assert gzip.decompress(archive) == (WEB / 'assets' / district['fileName']).read_bytes()
+extra = document['scenes'][0]['extras']
+assert extra['unit'] == 'metre' and len(extra['obstacles']) == 7
+assert extra['triangles'] == sum(document['accessors'][p['indices']]['count'] // 3 for m in document['meshes'] for p in m['primitives'])
+additional_assets += 1
+
 refs = 0
 for path in WEB.rglob('*.js'):
     source = re.sub(r'/\*.*?\*/', '', path.read_text(), flags=re.S)
@@ -82,4 +118,5 @@ assert (ROOT / 'android/app/../../web').resolve() == WEB
 assert "minSdk 26" in build
 print(json.dumps({'status': 'passed', 'localModuleReferences': refs,
     'modelSha256': hashlib.sha256(data).hexdigest(), 'animations': list(clips),
-    'offline': True, 'citySha256':city_manifest['sha256'], 'androidMinSdk': 26}, indent=2))
+    'offline': True, 'citySha256':city_manifest['sha256'], 'androidMinSdk': 26,
+    'additionalAssetsChecked': additional_assets, 'districtTriangles': extra['triangles']}, indent=2))

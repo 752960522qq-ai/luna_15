@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "staticMeshes": 22,
+  "triangles": 31050,
+  "cityScale": 0.72,
+  "sizeMetres": [
+    401.76,
+    168.48000549316407
+  ],
+  "obstacles": 22,
+  "groundY": 0
+}

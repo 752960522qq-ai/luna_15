@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "records": [
+    {
+      "outfit": "ada-set",
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "parts": {
+        "ada-top": 3,
+        "ada-shoes": 1,
+        "dorsay-shoes": 0,
+        "city-dress": 0
+      },
+      "clearance": 0.001
+    },
+    {
+      "outfit": "dorsay-set",
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "parts": {
+        "ada-top": 3,
+        "ada-shoes": 0,
+        "dorsay-shoes": 2,
+        "city-dress": 0
+      },
+      "clearance": 0.001
+    },
+    {
+      "outfit": "dress-dorsay",
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "parts": {
+        "ada-top": 0,
+        "ada-shoes": 0,
+        "dorsay-shoes": 2,
+        "city-dress": 1
+      },
+      "clearance": 0.001
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "localModuleReferences": 40,
+  "modelSha256": "f6e98e172b8dd88fe79801a8239749a5c0fd8c98ea5d101c1b43ff43cb15604b",
+  "animations": [
+    "Idle_Heels",
+    "Walk_Heels",
+    "Run_Heels",
+    "Rifle_Aim_Idle"
+  ],
+  "offline": true,
+  "citySha256": "acfee8c364015932d64533f9f3a3046fc91748d46c5e52d31f578927a440ca86",
+  "androidMinSdk": 26,
+  "additionalAssetsChecked": 10,
+  "districtTriangles": 90681
+}

@@ -158,6 +158,7 @@ public final class MovementSmokeTest {
         assertEquals("Available UI action " + action + " / " + value, "true", result);
     }
     private void teleport(String area, double x, double z) throws Exception {
+        if ("city".equals(area)) { x *= 1.6; z *= 1.6; }
         evaluate("window.__lifeTest.teleport('" + area + "'," + x + "," + z + ")");
     }
     private void start() {
@@ -176,7 +177,8 @@ public final class MovementSmokeTest {
             assertEquals("main", initial.getString("mode"));
             assertEquals("android-shared-preferences", initial.getString("storageBackend"));
             assertEquals(4, initial.getJSONArray("animations").length());
-            assertEquals(8, initial.getJSONArray("npcs").length());
+            assertEquals(12, initial.getJSONArray("npcs").length());
+            assertEquals(.72, initial.getJSONObject("city").getDouble("scale"), .001);
             assertEquals(2.2, initial.getDouble("cameraDistance"), .001);
             assertEquals("appassets.androidplatform.net", initial.getString("host"));
             // CI uses a software GPU; exercise the actual mobile quality setting.
@@ -216,7 +218,7 @@ public final class MovementSmokeTest {
             tap("interact"); click("accept", "new-life"); tap("close-panel");
             teleport("home", 0, 7.9); tap("interact");
             assertEquals("city", snapshot().getJSONObject("player").getString("area"));
-            teleport("city", -1.1, -2.5); tap("interact");
+            teleport("city", -1.4, -2.5); tap("interact");
             assertEquals("dialog", snapshot().getString("modal"));
             click("gift", null); click("shop", null); click("buy", "city-bag");
             click("buy", "night-dress"); click("wardrobe", null); click("outfit", "night");
@@ -226,6 +228,11 @@ public final class MovementSmokeTest {
             assertEquals(420, player.getInt("money"));
             assertEquals("new-life", player.getJSONObject("mission").getJSONArray("completed").getString(0));
             assertEquals("night", player.getJSONObject("outfit").getString("preset"));
+            tap("pause"); click("wardrobe", null); click("outfit", "dress-dorsay");
+            JSONObject parts = snapshot().getJSONObject("outfitParts");
+            assertEquals(1, parts.getInt("city-dress"));
+            assertEquals(2, parts.getInt("dorsay-shoes"));
+            tap("close-panel");
             tap("pause"); click("settings", null); click("save", null); tap("close-panel");
             assertTrue("Saved state validates before restart", snapshot().getBoolean("saveAvailable"));
             getInstrumentation().runOnMainSync(() -> activity.finish());
@@ -237,7 +244,9 @@ public final class MovementSmokeTest {
             waitForMode("play");
             JSONObject restored = snapshot().getJSONObject("player");
             assertEquals("Money survives a new WebView", 420, restored.getInt("money"));
-            assertEquals("Outfit survives a new WebView", "night", restored.getJSONObject("outfit").getString("preset"));
+            assertEquals("Outfit survives a new WebView", "dress-dorsay", restored.getJSONObject("outfit").getString("preset"));
+            assertEquals(1, snapshot().getJSONObject("outfitParts").getInt("city-dress"));
+            assertEquals(2, snapshot().getJSONObject("outfitParts").getInt("dorsay-shoes"));
             assertEquals("Completed quest survives", 1, restored.getJSONObject("mission").getJSONArray("completed").length());
             teleport("city", 0, 2);
             SystemClock.sleep(1200);

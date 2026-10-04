@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "checks": 208107,
+  "missions": 3,
+  "npcDefinitions": 12,
+  "navigationNodes": 7534,
+  "reachableTargets": 18,
+  "animationPoses": 660,
+  "minimumFootClearanceM": 0.0009999999999999974,
+  "maximumGroundLiftM": 0.036789536107076234,
+  "dualSlotSave": true
+}

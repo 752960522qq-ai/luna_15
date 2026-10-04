@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "clothingPoses": 480,
+  "npcPoses": 1170,
+  "minimumShoeClearanceM": 0.0007665316485710987,
+  "minimumNPCFootM": -0.0011732162554266147,
+  "maximumNPCHeightM": 1.7310449623493662,
+  "maximumNPCWidthM": 0.8365705254208611,
+  "npcCount": 12,
+  "femaleCount": 6,
+  "cityScale": 0.72,
+  "cityPositionMigration": true,
+  "eastDistrictReachable": true,
+  "originalBodyRestored": true
+}

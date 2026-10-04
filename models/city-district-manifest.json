@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "asset": "city-east-district.glb",
+  "fileName": "city-east-district.glb",
+  "archiveName": "city-east-district.glb.gz",
+  "byteLength": 11435124,
+  "sha256": "57209266cf4b352ae36199cf6b76e13e42c2f2893291ee6f7df51c251d285a12",
+  "compressedSha256": "bf92b37e7df685921db5c99533f464f81ad976803fc81e48be69066322255dd4",
+  "sourceFile": "city.glb",
+  "source": {
+    "byteLength": 35521164,
+    "sha256": "9f7e0fa41b00d27c4d735a5214d5b11f43276498c9c0351e886578fc45cc8b9a"
+  },
+  "assetRecord": {
+    "byteLength": 11435124,
+    "sha256": "57209266cf4b352ae36199cf6b76e13e42c2f2893291ee6f7df51c251d285a12"
+  },
+  "world": {
+    "name": "Uploaded city east district",
+    "unit": "metre",
+    "sourceUnitToMetres": 1,
+    "bounds": {
+      "minX": -17.282872749481623,
+      "maxX": 20.100803606800003,
+      "minZ": -39.493347541908456,
+      "maxZ": 45.00948623583441
+    },
+    "groundY": 0,
+    "obstacles": [
+      {
+        "name": "West buildings",
+        "min": [
+          -17.3,
+          -0.123,
+          -37.9
+        ],
+        "max": [
+          -3.1400000000000006,
+          21.717000000000002,
+          43.74
+        ]
+      },
+      {
+        "name": "East south",
+        "min": [
+          3.08,
+          -0.123,
+          -39.5
+        ],
+        "max": [
+          17.22,
+          21.717000000000002,
+          -3.03
+        ]
+      },
+      {
+        "name": "East centre",
+        "min": [
+          3.53,
+          -0.05299999999999999,
+          -2.88
+        ],
+        "max": [
+          20.11,
+          12.876999999999999,
+          10.02
+        ]
+      },
+      {
+        "name": "East north",
+        "min": [
+          3.08,
+          -0.123,
+          10.0
+        ],
+        "max": [
+          17.22,
+          21.717000000000002,
+          41.33
+        ]
+      },
+      {
+        "name": "Parked car",
+        "min": [
+          -4.11,
+          -0.05299999999999999,
+          21.05
+        ],
+        "max": [
+          -1.83,
+          1.567,
+          26.1
+        ]
+      },
+      {
+        "name": "Parked scooter south",
+        "min": [
+          -4.069999999999999,
+          -0.05299999999999999,
+          -8.03
+        ],
+        "max": [
+          -2.4400000000000004,
+          1.227,
+          -7.17
+        ]
+      },
+      {
+        "name": "Parked scooter north",
+        "min": [
+          2.4299999999999997,
+          -0.0030000000000000027,
+          20.36
+        ],
+        "max": [
+          3.98,
+          1.2570000000000001,
+          21.48
+        ]
+      }
+    ],
+    "groundNodes": [
+      "District_Ground_1",
+      "District_Ground_8",
+      "District_Ground_9",
+      "District_Ground_10",
+      "District_Ground_15",
+      "District_Ground_20",
+      "District_Ground_24",
+      "District_Ground_25",
+      "District_Ground_26",
+      "District_Ground_29",
+      "District_Ground_31",
+      "District_Ground_32",
+      "District_Ground_33",
+      "District_Ground_34",
+      "District_Ground_37",
+      "District_Ground_38",
+      "District_Ground_44",
+      "District_Ground_45",
+      "District_Ground_46",
+      "District_Ground_47",
+      "District_Ground_48",
+      "District_Ground_53",
+      "District_Ground_57",
+      "District_Ground_62",
+      "District_Ground_74"
+    ],
+    "drawMeshes": 96,
+    "sourceTriangles": 173660,
+    "triangles": 90681,
+    "sourceAttribution": {
+      "author": "abhayexe (https://sketchfab.com/abhayexe)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/city-14941a37dcbf4efd9c1f1d713aa157de",
+      "title": "city"
+    },
+    "normalizationOffset": [
+      -4.8,
+      -0.187,
+      0.0
+    ]
+  }
+}

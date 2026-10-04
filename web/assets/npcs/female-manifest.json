@@ -1,0 +1,423 @@
+{
+  "version": 1,
+  "units": "metres",
+  "gender": "female",
+  "characterCount": 6,
+  "scaleFromSource": 1.2808843029701733,
+  "jillReferenceHeightMetres": 1.7302537,
+  "sourceFiles": {
+    "female_citizen_dafuq.glb": "a6d03c9ec5c19ba348206c2563669cd4f7657ec64fedd066d9bd8f33e961ca24",
+    "Dwarf Walk(1).fbx": "9ef5e9883e6e3f2cb7634b191ce01f7630958911d8ddf71891919f04086107e6",
+    "Standing Idle(1).fbx": "c5ca459d59cba57a52b5b33313ed3d31bb4cee18694e6eeabfea8a88636cd07b"
+  },
+  "sourceAttribution": {
+    "author": "That one larry (https://sketchfab.com/Professor_E12)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/female-citizen-dafuq-0015793aa3af4b4f91440cc6155483d2",
+    "title": "Female citizen dafuq"
+  },
+  "citizens": [
+    {
+      "id": "female-citizen-01",
+      "path": "assets/npcs/female-citizen-01.glb",
+      "gender": "female",
+      "heightMetres": 1.699365511291395,
+      "joints": 57,
+      "meshCount": 10,
+      "triangleCount": 4958,
+      "clips": [
+        {
+          "sourceFile": "Standing Idle(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            4.4095964572434754e-08
+          ],
+          "referenceStrideDistance": 4.4095964572434754e-08,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.027263617623153262,
+            0.028305835118004122
+          ]
+        },
+        {
+          "sourceFile": "Dwarf Walk(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            1.6162941372527884
+          ],
+          "referenceStrideDistance": 1.6162941372527884,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.014441477069053615,
+            0.03018355834663986
+          ]
+        },
+        {
+          "sourceFile": "Talking.fbx (existing male Citizen_Talk)",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            0
+          ],
+          "referenceStrideDistance": 0,
+          "retargetedJoints": 53,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            -0.014768573490487796,
+            -0.011521394414774396
+          ]
+        }
+      ],
+      "byteLength": 3813752,
+      "sha256": "2a29f382749ad52a3a3efed82d3c52c3584ae4913a27a2a8243a7420da55b353"
+    },
+    {
+      "id": "female-citizen-02",
+      "path": "assets/npcs/female-citizen-02.glb",
+      "gender": "female",
+      "heightMetres": 1.7031011490394992,
+      "joints": 57,
+      "meshCount": 11,
+      "triangleCount": 5024,
+      "clips": [
+        {
+          "sourceFile": "Standing Idle(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            4.4095962522338545e-08
+          ],
+          "referenceStrideDistance": 4.4095962522338545e-08,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.023596306330025442,
+            0.024622546273499205
+          ]
+        },
+        {
+          "sourceFile": "Dwarf Walk(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            1.6162940621085315
+          ],
+          "referenceStrideDistance": 1.6162940621085315,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.014427661098561643,
+            0.02658240391148742
+          ]
+        },
+        {
+          "sourceFile": "Talking.fbx (existing male Citizen_Talk)",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            0
+          ],
+          "referenceStrideDistance": 0,
+          "retargetedJoints": 53,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            -0.015404750840886779,
+            -0.01183306096754633
+          ]
+        }
+      ],
+      "byteLength": 4502192,
+      "sha256": "0702b440706ab0a1b6e7053dc7c0dab35b65a115ef616cd5f3458e62d75ab3b2"
+    },
+    {
+      "id": "female-citizen-03",
+      "path": "assets/npcs/female-citizen-03.glb",
+      "gender": "female",
+      "heightMetres": 1.6982039692732185,
+      "joints": 57,
+      "meshCount": 10,
+      "triangleCount": 5187,
+      "clips": [
+        {
+          "sourceFile": "Standing Idle(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            4.409596457243557e-08
+          ],
+          "referenceStrideDistance": 4.409596457243557e-08,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.02359626357700591,
+            0.02462255400940323
+          ]
+        },
+        {
+          "sourceFile": "Dwarf Walk(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            1.6162941372528181
+          ],
+          "referenceStrideDistance": 1.6162941372528181,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.014427642639154248,
+            0.026582392677130046
+          ]
+        },
+        {
+          "sourceFile": "Talking.fbx (existing male Citizen_Talk)",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            0
+          ],
+          "referenceStrideDistance": 0,
+          "retargetedJoints": 53,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            -0.015404745432298687,
+            -0.011833044874956875
+          ]
+        }
+      ],
+      "byteLength": 4991340,
+      "sha256": "805cc4afecc785db38c7636787d58db5ef02d69022d20de99f88012d61d47386"
+    },
+    {
+      "id": "female-citizen-04",
+      "path": "assets/npcs/female-citizen-04.glb",
+      "gender": "female",
+      "heightMetres": 1.7064758278602594,
+      "joints": 57,
+      "meshCount": 10,
+      "triangleCount": 5711,
+      "clips": [
+        {
+          "sourceFile": "Standing Idle(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            4.4095964572439505e-08
+          ],
+          "referenceStrideDistance": 4.4095964572439505e-08,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.027263631189583314,
+            0.02830585056138763
+          ]
+        },
+        {
+          "sourceFile": "Dwarf Walk(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            1.6162941372529627
+          ],
+          "referenceStrideDistance": 1.6162941372529627,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.014441471006523352,
+            0.030183603410827667
+          ]
+        },
+        {
+          "sourceFile": "Talking.fbx (existing male Citizen_Talk)",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            0
+          ],
+          "referenceStrideDistance": 0,
+          "retargetedJoints": 53,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            -0.014768563681181512,
+            -0.011521336132824793
+          ]
+        }
+      ],
+      "byteLength": 2664604,
+      "sha256": "ef663f5aea638cb76fb1c047cfc2e974584aa946f2c89a70a40128a0a3af4956"
+    },
+    {
+      "id": "female-citizen-05",
+      "path": "assets/npcs/female-citizen-05.glb",
+      "gender": "female",
+      "heightMetres": 1.700634488708605,
+      "joints": 57,
+      "meshCount": 10,
+      "triangleCount": 4854,
+      "clips": [
+        {
+          "sourceFile": "Standing Idle(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            4.409596457243559e-08
+          ],
+          "referenceStrideDistance": 4.409596457243559e-08,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.02726347958297506,
+            0.02830569639307092
+          ]
+        },
+        {
+          "sourceFile": "Dwarf Walk(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            1.616294137252819
+          ],
+          "referenceStrideDistance": 1.616294137252819,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.014441266597894842,
+            0.03018362750830869
+          ]
+        },
+        {
+          "sourceFile": "Talking.fbx (existing male Citizen_Talk)",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            0
+          ],
+          "referenceStrideDistance": 0,
+          "retargetedJoints": 53,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            -0.014768544700048618,
+            -0.011521517762434392
+          ]
+        }
+      ],
+      "byteLength": 3288396,
+      "sha256": "b359f5e8d13967a9ebf40192f08b934ff42bfb5f28a32168e60423da5fb55b88"
+    },
+    {
+      "id": "female-citizen-06",
+      "path": "assets/npcs/female-citizen-06.glb",
+      "gender": "female",
+      "heightMetres": 1.6937728094822027,
+      "joints": 57,
+      "meshCount": 10,
+      "triangleCount": 5125,
+      "clips": [
+        {
+          "sourceFile": "Standing Idle(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            4.409596457245685e-08
+          ],
+          "referenceStrideDistance": 4.409596457245685e-08,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.023596029821121835,
+            0.02462265080522091
+          ]
+        },
+        {
+          "sourceFile": "Dwarf Walk(1).fbx",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            1.6162941372535984
+          ],
+          "referenceStrideDistance": 1.6162941372535984,
+          "retargetedJoints": 52,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            0.014427840257521612,
+            0.026582281961845096
+          ]
+        },
+        {
+          "sourceFile": "Talking.fbx (existing male Citizen_Talk)",
+          "inPlace": true,
+          "loop": true,
+          "rootMotionRemovedMetres": [
+            0,
+            0,
+            0
+          ],
+          "referenceStrideDistance": 0,
+          "retargetedJoints": 53,
+          "sampleRate": 30,
+          "gender": "female",
+          "groundCorrectionRange": [
+            -0.015404759020919132,
+            -0.011833112615849024
+          ]
+        }
+      ],
+      "byteLength": 5114564,
+      "sha256": "b226a2c5cc366cad20ea12bd05239a61aac672fa45417b1d663af965ba689a6a"
+    }
+  ]
+}

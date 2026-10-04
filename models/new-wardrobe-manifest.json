@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "characterScale": 1,
+  "units": "metres",
+  "assets": {
+    "dorsay-shoes.glb": {
+      "byteLength": 1802552,
+      "sha256": "c63ed3caf41ec89f435c0f3ff35bc1de91dcd1db73c64d94ce2b8cfbbdcafd8a",
+      "meshes": 2,
+      "vertices": 14054,
+      "triangles": 26844
+    },
+    "city-dress.glb": {
+      "byteLength": 665360,
+      "sha256": "a93bf76fb52874d14fe9f9eb01859b187c0b74a637a181f880a1c82ff27152fd",
+      "meshes": 1,
+      "vertices": 1697,
+      "triangles": 2970
+    },
+    "ada-shoes.glb": {
+      "byteLength": 946832,
+      "sha256": "a82d3d98c09fcf7d5abd233222c01ffdf358774c3f1543140e01b5fc0089e660"
+    }
+  },
+  "sourceFiles": {
+    "dorsay_high_heels(1).glb": {
+      "byteLength": 1421748,
+      "sha256": "864a4bd55204a1d48cbbd21b1ea297a7ddef79b1841bdb1a73f008c831f40702"
+    },
+    "dress(1).glb": {
+      "byteLength": 3200980,
+      "sha256": "4ea0ebf804c5ca7922391a0e0dc920d676a5b90a4dbab8aa67705f084e575776"
+    }
+  }
+}

@@ -20,14 +20,14 @@ gltf.scene.traverse(obj=>{
 });
 assert.equal(meshes,22);assert.equal(triangles,31050);
 const box=new THREE.Box3().setFromObject(gltf.scene,true),size=box.getSize(new THREE.Vector3());
-assert.ok(Math.abs(size.x-251.1)<.0001&&Math.abs(size.z-105.3)<.0001,'actual transformed geometry matches the new city footprint');
+assert.ok(Math.abs(size.x-401.76)<.0001&&Math.abs(size.z-168.48)<.0001,'actual transformed geometry matches the new city footprint');
 assert.ok(Math.abs(world.bounds.maxX-world.bounds.minX-size.x)<.0001);
 assert.ok(Math.abs(world.bounds.maxZ-world.bounds.minZ-size.z)<.0001);
 assert.equal(world.characterRadius,.26,'the character collision radius keeps its original metre size');
 assert.equal(world.groundY,0);
 const groundHeight=groundSampler(gltf.scene);
 assert.equal(groundHeight(0,0),0,'asphalt surface at the spawn must be exactly Y=0');
-assert.ok(Math.abs(groundHeight(8*CITY_SCALE,0)-.09)<1e-5,'feet follow the scaled 9 cm pavement height');
+assert.ok(Math.abs(groundHeight(8*CITY_SCALE,0)-.144)<1e-5,'feet follow the scaled 14.4 cm pavement height');
 assert.ok(!world.obstacles.some(box=>c.x>box.min[0]-.26&&c.x<box.max[0]+.26&&c.z>box.min[2]-.26&&c.z<box.max[2]+.26),'spawn is on an open street');
 const advance=(frames,input,yaw=0,run=false)=>{for(let i=0;i<frames;i++)c.update(1/60,input,yaw,run);};
 advance(1800,{x:1,forward:0});
@@ -40,7 +40,7 @@ assert.ok(c.z<-1&&Math.abs(c.x-(laundry.min[0]-.26))<1e-5,'diagonal movement sli
 c.reset();advance(1000,{x:0,forward:1},0,true);
 assert.ok(c.z<-25,'streets are no longer limited to the old 22-metre test circle');
 const unobstructed=cameraFraction(world,{x:0,y:1,z:0},{x:0,y:1.4,z:2.2});
-const blocked=cameraFraction(world,{x:3.6,y:1,z:0},{x:5.4,y:1.4,z:0});
+const blocked=cameraFraction(world,{x:6.2,y:1,z:0},{x:8,y:1.4,z:0});
 assert.equal(unobstructed,1);assert.ok(blocked>0&&blocked<.3,'camera boom stops before the facade');
 c.reset();c.x=world.bounds.maxX-.26;c.z=world.bounds.maxZ-2;
 advance(300,{x:1,forward:0},0,true);

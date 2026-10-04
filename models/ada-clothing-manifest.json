@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sourceFile": "Ada_Lingerie_and_Heels_CLOTHING_ONLY(1).glb",
   "sourceSha256": "cad87d108d27ff0f49311887174946fbe5f5bad4c80b1019a53b367575ffb67a",
   "units": "metres",
@@ -20,11 +20,12 @@
       "triangles": 22848
     },
     "ada-shoes.glb": {
-      "byteLength": 398368,
-      "sha256": "2413371ab105a19d4e699bdd55283a8ccbd3ee07b5ab7e022c48f1b7017b4bee",
+      "byteLength": 946832,
+      "sha256": "a82d3d98c09fcf7d5abd233222c01ffdf358774c3f1543140e01b5fc0089e660",
       "meshes": 1,
       "vertices": 2776,
       "triangles": 4416
     }
-  }
+  },
+  "shoeRepair": "Continuous fitted foot surface inside closed shoe; no triangle cutting at ankle opening"
 }
