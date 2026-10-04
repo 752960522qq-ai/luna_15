@@ -18,6 +18,11 @@ finish() {
   timeout -k 5s 15s "${ADB[@]}" exec-out run-as com.luna.heelmotion cat files/test-preview.png > reports/test-preview.png 2> reports/screenshot-error.txt
   free -m > reports/host-memory-after.txt
   timeout 10s sudo -n dmesg --ctime | tail -200 > reports/host-kernel-tail.txt 2>&1
+  for crashdb in /tmp/android-runner/emu-crash-*.db; do
+    if [[ -e "$crashdb" ]]; then
+      timeout 30s tar -czf "reports/$(basename "$crashdb").tgz" -C /tmp/android-runner "$(basename "$crashdb")"
+    fi
+  done
   exit "$result"
 }
 trap finish EXIT
