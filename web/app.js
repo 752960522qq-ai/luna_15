@@ -8,6 +8,7 @@ import {InteractionSystem} from './interaction.js';
 import {NavigationNetwork,pointWalkable} from './navigation.js';
 import {NPCManager} from './npcs.js';
 import {Avatar} from './avatar.js';
+import {usesHeelPosture} from './wardrobe-attachments.js';
 import {createHome,addCityProps,marker} from './world-props.js';
 import {LOCATIONS} from './life-data.js';
 import {MobileControls} from './controls.js';
@@ -39,7 +40,7 @@ function fail(message,error){ready=false;mode='error';controls.enable(false);$('
 $('retry').addEventListener('click',()=>location.reload());
 function saveGame(show=true){if(!ready||mode==='main')return false;try{syncPosition();saveSystem.save(player);saved=saveSystem.load();if(show)ui.toast('游戏已保存');return true;}catch(error){ui.toast(error.message);return false;}}
 function syncPosition(){Object.assign(player.position,{x:controller.x,y:groundY,z:controller.z,yaw:controller.yaw});}
-function applyOutfit(){if(!avatars)return;selectedAvatar=player.outfit.shoes==='black-heels'?avatars.heels:avatars.barefoot;for(const avatar of Object.values(avatars)){avatar.root.visible=avatar===selectedAvatar;avatar.outfit(player.outfit);}}
+function applyOutfit(){if(!avatars)return;selectedAvatar=usesHeelPosture(player.outfit.shoes)?avatars.heels:avatars.barefoot;for(const avatar of Object.values(avatars)){avatar.root.visible=avatar===selectedAvatar;avatar.outfit(player.outfit);}}
 function activeWorld(){return player.area==='city'?world:home.world;}
 function ground(x,z){return player.area==='city'?sampleCity(x,z):0;}
 function setArea(area,position=null){
@@ -99,13 +100,15 @@ async function load(){
     scene=new THREE.Scene();scene.background=new THREE.Color('#a9c7dd');scene.fog=new THREE.Fog('#a9c7dd',90,240);camera=new THREE.PerspectiveCamera(46,1,.03,300);
     hemi=new THREE.HemisphereLight('#d6eef7','#727b62',2.2);scene.add(hemi);sun=new THREE.DirectionalLight('#fff2de',3.1);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-13,right:13,top:13,bottom:-13,near:.5,far:65});sun.shadow.bias=-.0001;sun.shadow.normalBias=.015;scene.add(sun,sun.target);roomLight=new THREE.PointLight('#ffe0bb',12,8,2);roomLight.position.set(0,2.6,10);scene.add(roomLight);for(let i=0;i<2;i++){const light=new THREE.PointLight('#ffd38f',8,11,2);scene.add(light);nightLights.push(light);}
     scene.add(actor,home.group,npcGroup,propGroup);applyQuality();window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
-    const loader=new GLTFLoader();let done=0;const progress=name=>{done++;$('load-progress').style.width=`${Math.round(done/4*100)}%`;$('load-detail').textContent=name;};
-    const [city,barefoot,heels]=await Promise.all([
+    const loader=new GLTFLoader();let done=0;const progress=name=>{done++;$('load-progress').style.width=`${Math.round(done/6*100)}%`;$('load-detail').textContent=name;};
+    const [city,barefoot,heels,adaTop,adaShoes]=await Promise.all([
       loader.loadAsync('./assets/city-neighborhood.glb').then(g=>{progress('街区已读取');return g;}),
       loader.loadAsync('./assets/jill-barefoot-locomotion.glb').then(g=>{progress('默认人物已读取');return g;}),
-      loader.loadAsync('./assets/jill-heels-locomotion.glb').then(g=>{progress('高跟鞋姿态已读取');return g;})]);
+      loader.loadAsync('./assets/jill-heels-locomotion.glb').then(g=>{progress('高跟鞋姿态已读取');return g;}),
+      loader.loadAsync('./assets/ada-top.glb').then(g=>{progress('Ada 上衣已读取');return g;}),
+      loader.loadAsync('./assets/ada-shoes.glb').then(g=>{progress('Ada 高跟鞋已读取');return g;})]);
     world=cityWorld(city);cityRoot=city.scene;scene.add(cityRoot);sampleCity=groundSampler(cityRoot);network=new NavigationNetwork(world);props=addCityProps(propGroup);marker(home.group,{x:0,z:7.65},'#8bddca');
-    avatars={barefoot:new Avatar(barefoot,controller),heels:new Avatar(heels,controller)};actor.add(avatars.barefoot.root,avatars.heels.root);applyOutfit();
+    const wardrobeAssets={top:adaTop,shoes:adaShoes};avatars={barefoot:new Avatar(barefoot,controller,wardrobeAssets),heels:new Avatar(heels,controller,wardrobeAssets)};actor.add(avatars.barefoot.root,avatars.heels.root);applyOutfit();
     npcs=new NPCManager(network,player,npcGroup,sampleCity);await npcs.load(loader);progress('市民和街道导航准备完成');registerInteractions();
     ready=true;setArea('home');mode='main';$('loading').hidden=true;$('main-menu').hidden=false;$('continue-game').disabled=!saved;lighting();
     requestAnimationFrame(frame);
@@ -132,7 +135,7 @@ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('图形�
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame(false);lastFrame=performance.now();});window.addEventListener('pagehide',()=>saveGame(false));window.addEventListener('blur',()=>saveGame(false));
 
 if(new URLSearchParams(location.search).get('diagnostics')==='1'){
-  const snapshot=()=>({...controller.snapshot(),stateId:controller.stateId,running:controls.run,stick:{x:controls.stick.x,forward:controls.stick.forward,pointer:controls.stick.pointer},loaded:ready,mode,animations:selectedAvatar?Object.keys(selectedAvatar.actions):[],weights:controller.weights,frames,footView:cameraState.foot,cameraDistance:player.settings.cameraDistance,actualCameraDistance,host:location.hostname,characterScale:actor.scale.toArray(),groundY,shoeClearance:selectedAvatar?.clearance??null,player:JSON.parse(JSON.stringify(player)),modal:ui.view,interaction:interactions.closest?.id||null,city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null,navigationNodes:network?.nodes.length||0,npcs:npcs?.snapshot()||[],npcDebug:npcs?.debug,drawCalls:renderer?.info.render.calls||0,saveError:saveSystem.error,storageBackend:storage.backend||'localStorage',saveAvailable:!!saved,continueDisabled:$('continue-game').disabled,cameraPosition:camera?.position.toArray()});
+  const snapshot=()=>({...controller.snapshot(),stateId:controller.stateId,running:controls.run,stick:{x:controls.stick.x,forward:controls.stick.forward,pointer:controls.stick.pointer},loaded:ready,mode,animations:selectedAvatar?Object.keys(selectedAvatar.actions):[],weights:controller.weights,frames,footView:cameraState.foot,cameraDistance:player.settings.cameraDistance,actualCameraDistance,host:location.hostname,characterScale:actor.scale.toArray(),groundY,shoeClearance:selectedAvatar?.clearance??null,wardrobe:selectedAvatar?.attachments?{heelPosture:selectedAvatar===avatars.heels,topMeshes:selectedAvatar.attachments.meshes.top.filter(m=>m.visible).length,shoeMeshes:selectedAvatar.attachments.meshes.shoes.filter(m=>m.visible).length,originalHeelsVisible:selectedAvatar.attachments.originalBoots?.visible??false}:null,player:JSON.parse(JSON.stringify(player)),modal:ui.view,interaction:interactions.closest?.id||null,city:world?{name:world.name,unit:world.unit,scale:world.scale,bounds:world.bounds,drawMeshes:world.drawMeshes}:null,navigationNodes:network?.nodes.length||0,npcs:npcs?.snapshot()||[],npcDebug:npcs?.debug,drawCalls:renderer?.info.render.calls||0,saveError:saveSystem.error,storageBackend:storage.backend||'localStorage',saveAvailable:!!saved,continueDisabled:$('continue-game').disabled,cameraPosition:camera?.position.toArray()});
   window.__heelMotionSnapshot=snapshot;window.__lifeSnapshot=snapshot;
   window.__heelMotionPreviewCamera=value=>{if(value===null){previewCamera=null;return;}for(const k of ['position','target'])if(!Array.isArray(value?.[k])||value[k].length!==3||!value[k].every(Number.isFinite))throw new Error('Expected camera vectors');previewCamera=value;};
   // Only enabled in an explicitly requested diagnostic launch. Business flows

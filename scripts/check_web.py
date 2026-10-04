@@ -46,6 +46,17 @@ for name, metadata in life['assets'].items():
     else:
         assert len(document['meshes']) == 1 and not document.get('skins')
 
+ada = json.loads((ROOT / 'models/ada-clothing-manifest.json').read_text())
+for name, metadata in ada['assets'].items():
+    binary = (WEB / 'assets' / name).read_bytes()
+    assert len(binary) == metadata['byteLength']
+    assert hashlib.sha256(binary).hexdigest() == metadata['sha256']
+    n = struct.unpack_from('<I', binary, 12)[0]
+    document = json.loads(binary[20:20+n])
+    assert document['extras']['sourceSha256'] == ada['sourceSha256']
+    assert all('uri' not in image for image in document.get('images', []))
+    assert all('uri' not in buffer for buffer in document['buffers'])
+
 refs = 0
 for path in WEB.rglob('*.js'):
     source = re.sub(r'/\*.*?\*/', '', path.read_text(), flags=re.S)

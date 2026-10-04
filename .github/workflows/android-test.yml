@@ -32,6 +32,7 @@ jobs:
           node scripts/check_runtime.mjs | tee reports/animation-runtime.json
           node scripts/check_city.mjs | tee reports/city.json
           node scripts/check_life.mjs | tee reports/life-systems.json
+          node scripts/check_ada_clothes.mjs | tee reports/ada-clothing.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "sourceFile": "Ada_Lingerie_and_Heels_CLOTHING_ONLY(1).glb",
+  "sourceSha256": "cad87d108d27ff0f49311887174946fbe5f5bad4c80b1019a53b367575ffb67a",
+  "units": "metres",
+  "characterScale": 1,
+  "topComponents": [
+    "Lingerie_Upper",
+    "Lace_Trim",
+    "Lingerie_Lower (matching underlayer)"
+  ],
+  "binding": "Existing Jill bones by name; transferred torso weights and ankle/ball foot articulation",
+  "posture": "Existing Jill high-heel clips when ada-shoes is equipped",
+  "assets": {
+    "ada-top.glb": {
+      "byteLength": 4596720,
+      "sha256": "12151f31648ef33a197a5ba368a82d93e07fcf301674f56ff7091c23cb370706",
+      "meshes": 3,
+      "vertices": 12968,
+      "triangles": 22848
+    },
+    "ada-shoes.glb": {
+      "byteLength": 398368,
+      "sha256": "2413371ab105a19d4e699bdd55283a8ccbd3ee07b5ab7e022c48f1b7017b4bee",
+      "meshes": 1,
+      "vertices": 2776,
+      "triangles": 4416
+    }
+  }
+}

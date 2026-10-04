@@ -1,15 +1,21 @@
 export const LOCATIONS=Object.freeze({homeDoor:{x:-3.15,z:2.2},citySpawn:{x:0,z:2.2},shop:{x:-2.7,z:-2.5},parcel:{x:-1.4,z:-5.8},delivery:{x:15,z:-8},night:{x:0,z:-15.8}});
+export const ADA_STARTER_ITEMS=Object.freeze(['ada-top','ada-shoes']);
 export const PRODUCTS=Object.freeze([
  {id:'street-top',name:'街头上衣',price:150,type:'top'},
  {id:'city-bottom',name:'城市短裙',price:100,type:'bottom'},
  {id:'black-heels',name:'黑色高跟鞋',price:200,type:'shoes'},
+ {id:'ada-top',name:'Ada 白色蕾丝上衣',price:180,type:'top'},
+ {id:'ada-shoes',name:'Ada 黑色高跟鞋',price:200,type:'shoes'},
  {id:'night-dress',name:'夜色连衣裙',price:300,type:'dress'},
  {id:'city-bag',name:'街头挎包',price:80,type:'accessory'}]);
 export const OUTFITS=Object.freeze([
  {id:'original',name:'原始装束 · 赤脚',requires:['original'],slots:{top:null,bottom:null,shoes:null,dress:null,accessory:null},style:'original'},
  {id:'heels',name:'高跟鞋装束',requires:['black-heels'],slots:{top:null,bottom:null,shoes:'black-heels',dress:null,accessory:null},style:'original'},
  {id:'street',name:'街头套装',requires:['street-top','city-bottom'],slots:{top:'street-top',bottom:'city-bottom',shoes:null,dress:null,accessory:null},style:'street'},
- {id:'night',name:'夜色套装',requires:['night-dress','black-heels'],slots:{top:null,bottom:null,shoes:'black-heels',dress:'night-dress',accessory:null},style:'night'}]);
+ {id:'night',name:'夜色套装',requires:['night-dress','black-heels'],slots:{top:null,bottom:null,shoes:'black-heels',dress:'night-dress',accessory:null},style:'night'},
+ {id:'ada-top-only',name:'Ada · 仅上衣',requires:['ada-top'],slots:{top:'ada-top',bottom:null,shoes:null,dress:null,accessory:null},style:'ada'},
+ {id:'ada-shoes-only',name:'Ada · 仅高跟鞋',requires:['ada-shoes'],slots:{top:null,bottom:null,shoes:'ada-shoes',dress:null,accessory:null},style:'ada'},
+ {id:'ada-set',name:'Ada · 上衣和高跟鞋',requires:['ada-top','ada-shoes'],slots:{top:'ada-top',bottom:null,shoes:'ada-shoes',dress:null,accessory:null},style:'ada'}]);
 export const MISSIONS=Object.freeze([
  {id:'new-life',name:'新生活',reward:300,steps:[
   {id:'leave',text:'离开公寓附近，走进街区',kind:'leave'},
