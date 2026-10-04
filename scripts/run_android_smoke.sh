@@ -27,9 +27,13 @@ finish() {
   # This job owns one test emulator; reap its host processes after normal teardown.
   (
     sleep 15
+    printf 'Emulator cleanup started at %s\n' "$(date -u +%FT%TZ)"
+    pgrep -af '[q]emu-system-x86_64|[n]etsimd|[c]rashpad_handler.*android-runner/emu-crash-' || true
     pkill -KILL -f '[q]emu-system-x86_64' || true
     pkill -KILL -f '[n]etsimd' || true
     pkill -KILL -f '[c]rashpad_handler.*android-runner/emu-crash-' || true
+    printf 'Remaining emulator processes at %s\n' "$(date -u +%FT%TZ)"
+    pgrep -af '[q]emu-system-x86_64|[n]etsimd|[c]rashpad_handler.*android-runner/emu-crash-' || true
   ) > reports/emulator-cleanup.txt 2>&1 < /dev/null &
   exit "$result"
 }
