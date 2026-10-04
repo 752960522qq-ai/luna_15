@@ -23,6 +23,14 @@ finish() {
       timeout 30s tar -czf "reports/$(basename "$crashdb").tgz" -C /tmp/android-runner "$(basename "$crashdb")"
     fi
   done
+  # The SDK can acknowledge shutdown while QEMU still holds the Action's pipes.
+  # This job owns one test emulator; reap its host processes after normal teardown.
+  (
+    sleep 15
+    pkill -KILL -f '[q]emu-system-x86_64' || true
+    pkill -KILL -f '[n]etsimd' || true
+    pkill -KILL -f '[c]rashpad_handler.*android-runner/emu-crash-' || true
+  ) > reports/emulator-cleanup.txt 2>&1 < /dev/null &
   exit "$result"
 }
 trap finish EXIT

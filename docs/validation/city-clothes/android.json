@@ -1,0 +1,45 @@
+{
+  "codeCommit": "dada387385422fe04cd7248329e9d10a3c92fe9f",
+  "buildCommit": "f45a3cbe64b40b2dcc2bb64ffd59030b6af7ee03",
+  "runId": 37222947608,
+  "runUrl": "https://github.com/752960522qq-ai/luna_15/actions/runs/37222947608",
+  "buildArtifactId": 11311325607,
+  "emulatorArtifactId": 11311795273,
+  "buildStatus": "success",
+  "instrumentationStatus": "passed",
+  "instrumentationResult": "OK (1 test)",
+  "instrumentationDurationSeconds": 312.837,
+  "workflowStatus": "cancelled",
+  "emulatorJobStatus": "cancelled",
+  "cancellationPhase": "QEMU shutdown after successful instrumentation",
+  "apiLevel": 35,
+  "webViewVersion": "124.0.6367.219",
+  "graphicsBackend": "ANGLE + SwiftShader",
+  "networkDisabled": true,
+  "packageName": "com.luna.heelmotion",
+  "versionCode": 4,
+  "versionName": "0.4.0-city-clothes",
+  "byteLength": 154986461,
+  "sha256": "0e43cab26858a487dfc5f4cc0ba1d71158d602d85ca92abd44684a64fe8a5a03",
+  "offlineAssetsMatchSource": true,
+  "signatureScheme": "v2",
+  "certificateSha256": "7528de7eb9532f22bea263083133f93ee38c75687d880705d147f0a90e0203b8",
+  "cleanupPatchRetested": false,
+  "previousAttempts": [
+    {
+      "runId": 37219710562,
+      "buildStatus": "success",
+      "emulatorStatus": "cancelled",
+      "detail": "Emulator disconnected; original logcat waited for device until job timeout."
+    },
+    {
+      "runId": 37222329600,
+      "buildStatus": "success",
+      "emulatorStatus": "failure",
+      "diagnosticArtifactId": 11310244235,
+      "mainMenuLoaded": true,
+      "nativeSettingsAndNewGameTaps": true,
+      "detail": "Legacy SwiftShader emulator exited after entering city; no host OOM event recorded."
+    }
+  ]
+}

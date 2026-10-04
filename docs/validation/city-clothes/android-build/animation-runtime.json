@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "poses": 374,
+  "blends": 22,
+  "correctedShoeMinimumM": -0.00022201683090608678,
+  "maximumBlendLiftM": 0.031223178030743867,
+  "maximumHeadMatrixError": 5.288927061933291e-9
+}

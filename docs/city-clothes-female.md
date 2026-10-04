@@ -40,7 +40,29 @@
 - 浏览器实际触摸 UI 检查三项任务、奖励、购买、独立部位换装、瞄准、多指摇杆+跑步、NPC 导航、东街女性对话、存档重开、三种横屏分辨率与本地资源请求。结果见 `browser.json`。
 - 五张交付图由实际 Three.js 模型/运行游戏渲染：城市新比例与东街、修正黑鞋、新侧空鞋、连衣裙搭配、六名女性的待机/走路/对话。不使用生成图片代替模型效果。
 
-Android 仪器检查同步更新城市坐标、12 名 NPC 及鞋裙恢复断言。工作流将执行签名、内置资源检查和断网 Android 35 模拟器测试；构建记录完成后补充至本报告。浏览器软件 GPU 和模拟器检查不能代表手机真机帧率。
+Android 仪器检查同步更新城市坐标、12 名 NPC 及鞋裙恢复断言。Android 35、WebView 124、断网环境的完整测试已返回 `OK (1 test)`；详见下方记录。浏览器软件 GPU 和模拟器检查不能代表手机真机帧率。
+
+## Android 测试 APK
+
+| 项目 | 结果 |
+| --- | --- |
+| 模型/游戏代码 | [dada387](https://github.com/752960522qq-ai/luna_15/commit/dada387385422fe04cd7248329e9d10a3c92fe9f) |
+| 已测试的构建提交 | [f45a3cb](https://github.com/752960522qq-ai/luna_15/commit/f45a3cbe64b40b2dcc2bb64ffd59030b6af7ee03)；仅调整 CI，与首次交付 APK 逐字节相同 |
+| 构建附件 | [Actions 37222947608](https://github.com/752960522qq-ai/luna_15/actions/runs/37222947608) / `luna15-life-v1-test` |
+| 包名 / 版本 | `com.luna.heelmotion` / `4` / `0.4.0-city-clothes` |
+| 大小 | `154,986,461 B`（147.81 MiB） |
+| APK SHA-256 | `0e43cab26858a487dfc5f4cc0ba1d71158d602d85ca92abd44684a64fe8a5a03` |
+| 签名 | v2 校验通过；沿用原测试签名，可覆盖原测试版 |
+| 证书 SHA-256 | `7528de7eb9532f22bea263083133f93ee38c75687d880705d147f0a90e0203b8` |
+| 构建检查 | 应用与 instrumentation APK、`lintDebug`、版本、离线资源、CRC 与源文件一致性全部通过 |
+| Android 测试 | API 35 / WebView 124 / ANGLE + SwiftShader，关闭 Wi-Fi/移动数据；`OK (1 test)`，312.837 秒 |
+| 兼容要求 | Android 8.0+；系统 WebView 支持 WebGL 2；架构通用 |
+
+实际 Android 测试走通主菜单、公寓、城市、NPC、任务、商店、奖励和保存；检查原生双指摇杆+跑步、瞄准权重、放大后的城市地面接触、12 名 NPC、裙子与新鞋的网格数量，以及新 WebView 恢复金钱 420、已完成任务和鞋裙装束。原始输出保存在 [instrumentation.txt](validation/city-clothes/android-emulator/instrumentation.txt)，构建 JSON 位于 `validation/city-clothes/android-build/`，完整运行记录见 [android.json](validation/city-clothes/android.json)。
+
+这轮游戏测试于 UTC 18:13:30 成功结束，SDK 随后对 `adb emu kill` 返回成功，但 QEMU 与辅助进程一直没有退出；工作流到 18:25:50 被 20 分钟上限取消。因此应区分：**APK 构建成功、Android 游戏测试通过、工作流整体 cancelled**。前两次模拟器中断记录也保留在 `android.json`。本次最终提交补入 15 秒后的宿主进程清理，作用仅限 CI 的测试模拟器；这项清理补丁未重跑，未把 cancelled 改写为 success。
+
+交付名为 `luna15-city-clothes-test.apk`，仅重命名，内容与 Actions 的 `luna15-life-v1-test.apk` 相同。应用代码和 APK 均不因最后的报告/CI 清理提交发生变化。
 
 ## 主要文件
 
@@ -53,7 +75,7 @@ Android 仪器检查同步更新城市坐标、12 名 NPC 及鞋裙恢复断言�
 | 新增检查/预览 | `scripts/check_city_clothes.mjs`、`render_city_clothes.mjs`、`render_world_update.mjs` |
 | 修改游戏 | `web/app.js`、`city.js`、`life-data.js`、`player-state.js`、`game-systems.js`、`npcs.js`、`wardrobe-attachments.js` |
 | 修改已有资源 | `web/assets/ada-shoes.glb`、`models/ada-clothing-manifest.json` |
-| 修改检查/恢复 | `scripts/prepare_assets.py`、`check_web.py`、`check_city.mjs`、`check_life.mjs`、`check_life_browser.mjs`、Android `MovementSmokeTest.java`、`.github/workflows/android-test.yml`、`android/app/build.gradle` |
+| 修改检查/恢复 | `scripts/run_android_smoke.sh`（新增）、`scripts/prepare_assets.py`、`check_web.py`、`check_city.mjs`、`check_life.mjs`、`check_life_browser.mjs`、Android `MovementSmokeTest.java`、`.github/workflows/android-test.yml`、`android/app/build.gradle` |
 | 文档 | `README.md`、本报告、`docs/validation/city-clothes/*.json` |
 
 生成脚本需要 Python 的 numpy/scipy/Pillow/fast-simplification；从原始素材重新制作时传入对应原上传 GLB，动画采样数据已保存在仓库。正常运行或打包使用已适配成品，无需这些 Python 建模依赖。

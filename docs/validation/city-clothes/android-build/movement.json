@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "checks": 16,
+  "walkSpeed": 0.95,
+  "runSpeed": 2.4,
+  "runBeforeRelease": {
+    "state": "跑步",
+    "aiming": false,
+    "speed": 2.4,
+    "position": {
+      "x": -4.537,
+      "z": 4.537
+    },
+    "phase": 0.4717299121175862
+  }
+}
