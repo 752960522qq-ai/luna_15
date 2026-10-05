@@ -1,17 +1,22 @@
 {
   "codeCommit": "dada387385422fe04cd7248329e9d10a3c92fe9f",
-  "buildCommit": "f45a3cbe64b40b2dcc2bb64ffd59030b6af7ee03",
-  "runId": 37222947608,
-  "runUrl": "https://github.com/752960522qq-ai/luna_15/actions/runs/37222947608",
-  "buildArtifactId": 11311325607,
-  "emulatorArtifactId": 11311795273,
+  "buildCommit": "b6ce818644a0295f6d22ad772719b5c4191fdc0f",
+  "runId": 37245427463,
+  "runUrl": "https://github.com/752960522qq-ai/luna_15/actions/runs/37245427463",
+  "buildArtifactId": 11318628925,
+  "emulatorArtifactId": 11318927572,
+  "emulatorArtifactSha256": "9aec197feb585e1b52b685f1259b6485febb929bb503756967908cd8199d8c0b",
+  "workflowStartedAt": "2026-10-04T23:54:20Z",
+  "workflowCompletedAt": "2026-10-05T00:02:58Z",
   "buildStatus": "success",
   "instrumentationStatus": "passed",
   "instrumentationResult": "OK (1 test)",
-  "instrumentationDurationSeconds": 312.837,
-  "workflowStatus": "cancelled",
-  "emulatorJobStatus": "cancelled",
-  "cancellationPhase": "QEMU shutdown after successful instrumentation",
+  "instrumentationDurationSeconds": 320.846,
+  "workflowStatus": "success",
+  "emulatorJobStatus": "success",
+  "emulatorJobId": 111562486182,
+  "buildJobId": 111562262972,
+  "emulatorShutdownStatus": "success",
   "apiLevel": 35,
   "webViewVersion": "124.0.6367.219",
   "graphicsBackend": "ANGLE + SwiftShader",
@@ -24,7 +29,10 @@
   "offlineAssetsMatchSource": true,
   "signatureScheme": "v2",
   "certificateSha256": "7528de7eb9532f22bea263083133f93ee38c75687d880705d147f0a90e0203b8",
-  "cleanupPatchRetested": false,
+  "cleanupPatchRetested": true,
+  "cleanupFallbackTriggered": false,
+  "cleanupForcedPathVerified": false,
+  "cleanupDetail": "SDK shutdown completed before the 15-second fallback; diagnostic upload and workflow completed normally. Forced fallback was not fault-injected.",
   "previousAttempts": [
     {
       "runId": 37219710562,
@@ -40,6 +48,16 @@
       "mainMenuLoaded": true,
       "nativeSettingsAndNewGameTaps": true,
       "detail": "Legacy SwiftShader emulator exited after entering city; no host OOM event recorded."
+    },
+    {
+      "runId": 37222947608,
+      "buildCommit": "f45a3cbe64b40b2dcc2bb64ffd59030b6af7ee03",
+      "buildStatus": "success",
+      "instrumentationStatus": "passed",
+      "instrumentationDurationSeconds": 312.837,
+      "emulatorStatus": "cancelled",
+      "diagnosticArtifactId": 11311795273,
+      "detail": "Game instrumentation passed, but QEMU and auxiliary host processes did not exit after adb acknowledged shutdown; job timed out."
     }
   ]
 }

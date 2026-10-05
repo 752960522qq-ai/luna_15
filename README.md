@@ -6,7 +6,7 @@ Three.js + Android WebView 的离线开放世界生活原型。主菜单进入�
 
 Ada 上衣和黑鞋仍可独立穿脱。本次修正黑鞋脚面穿出与鞋口断边，增加上传的 D’Orsay 高跟鞋和黑色吊带连衣裙，提供 10 个衣柜预设；新旧存档免费获得这四件测试物品。六名女性市民独立拆分为 GLB，适配上传的待机、走路及现有男性对话动作，男女各六名。旧城市存档的位置随地图缩放迁移，金钱和任务保持原值。适配、文件清单、检查和限制见 [本次修改报告](docs/city-clothes-female.md)。本次 `0.4.0-city-clothes` 测试 APK 已构建并交付。
 
-本次 `0.4.0-city-clothes` APK 已构建，签名、lint 和全部内置资源检查通过。[构建附件](https://github.com/752960522qq-ai/luna_15/actions/runs/37222947608) 名为 `luna15-life-v1-test`，版本码 4，大小 `154,986,461 B`（147.81 MiB），SHA-256 为 `0e43cab26858a487dfc5f4cc0ba1d71158d602d85ca92abd44684a64fe8a5a03`。Android 35 断网仪器测试返回 `OK (1 test)`，覆盖多指移动、瞄准、任务、购买、鞋裙换装和重开存档恢复。工作流随后在模拟器退出阶段超时，游戏测试结果仍为通过；限时清理补丁已加入，本补丁未重复运行仪器测试。详见[本次修改及 APK 报告](docs/city-clothes-female.md)。
+本次 `0.4.0-city-clothes` APK 已构建，签名、lint 和全部内置资源检查通过。[完整构建与 Android 测试](https://github.com/752960522qq-ai/luna_15/actions/runs/37245427463) 已成功结束，附件名为 `luna15-life-v1-test`，版本码 4，大小 `154,986,461 B`（147.81 MiB），SHA-256 为 `0e43cab26858a487dfc5f4cc0ba1d71158d602d85ca92abd44684a64fe8a5a03`。Android 35 断网仪器测试返回 `OK (1 test)`，耗时 320.846 秒，覆盖多指移动、瞄准、任务、购买、鞋裙换装和重开存档恢复。模拟器正常退出，诊断附件成功上传；此前的超时记录保留在[本次修改及 APK 报告](docs/city-clothes-female.md)。
 
 ## 安装与游玩
 

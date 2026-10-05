@@ -47,20 +47,24 @@ Android 仪器检查同步更新城市坐标、12 名 NPC 及鞋裙恢复断言�
 | 项目 | 结果 |
 | --- | --- |
 | 模型/游戏代码 | [dada387](https://github.com/752960522qq-ai/luna_15/commit/dada387385422fe04cd7248329e9d10a3c92fe9f) |
-| 已测试的构建提交 | [f45a3cb](https://github.com/752960522qq-ai/luna_15/commit/f45a3cbe64b40b2dcc2bb64ffd59030b6af7ee03)；仅调整 CI，与首次交付 APK 逐字节相同 |
-| 构建附件 | [Actions 37222947608](https://github.com/752960522qq-ai/luna_15/actions/runs/37222947608) / `luna15-life-v1-test` |
+| 已测试的构建提交 | [b6ce818](https://github.com/752960522qq-ai/luna_15/commit/b6ce818644a0295f6d22ad772719b5c4191fdc0f)；仅调整 CI，与首次交付 APK 逐字节相同 |
+| 构建与测试 | [Actions 37245427463](https://github.com/752960522qq-ai/luna_15/actions/runs/37245427463) / 整体 `success`；附件 `luna15-life-v1-test`、`luna15-emulator-results` |
 | 包名 / 版本 | `com.luna.heelmotion` / `4` / `0.4.0-city-clothes` |
 | 大小 | `154,986,461 B`（147.81 MiB） |
 | APK SHA-256 | `0e43cab26858a487dfc5f4cc0ba1d71158d602d85ca92abd44684a64fe8a5a03` |
 | 签名 | v2 校验通过；沿用原测试签名，可覆盖原测试版 |
 | 证书 SHA-256 | `7528de7eb9532f22bea263083133f93ee38c75687d880705d147f0a90e0203b8` |
 | 构建检查 | 应用与 instrumentation APK、`lintDebug`、版本、离线资源、CRC 与源文件一致性全部通过 |
-| Android 测试 | API 35 / WebView 124 / ANGLE + SwiftShader，关闭 Wi-Fi/移动数据；`OK (1 test)`，312.837 秒 |
+| Android 测试 | API 35 / WebView 124 / ANGLE + SwiftShader，关闭 Wi-Fi/移动数据；`OK (1 test)`，320.846 秒；模拟器任务 `success` |
 | 兼容要求 | Android 8.0+；系统 WebView 支持 WebGL 2；架构通用 |
 
 实际 Android 测试走通主菜单、公寓、城市、NPC、任务、商店、奖励和保存；检查原生双指摇杆+跑步、瞄准权重、放大后的城市地面接触、12 名 NPC、裙子与新鞋的网格数量，以及新 WebView 恢复金钱 420、已完成任务和鞋裙装束。原始输出保存在 [instrumentation.txt](validation/city-clothes/android-emulator/instrumentation.txt)，构建 JSON 位于 `validation/city-clothes/android-build/`，完整运行记录见 [android.json](validation/city-clothes/android.json)。
 
-这轮游戏测试于 UTC 18:13:30 成功结束，SDK 随后对 `adb emu kill` 返回成功，但 QEMU 与辅助进程一直没有退出；工作流到 18:25:50 被 20 分钟上限取消。因此应区分：**APK 构建成功、Android 游戏测试通过、工作流整体 cancelled**。前两次模拟器中断记录也保留在 `android.json`。本次最终提交补入 15 秒后的宿主进程清理，作用仅限 CI 的测试模拟器；这项清理补丁未重跑，未把 cancelled 改写为 success。
+完整复测于 UTC `2026-10-05 00:02:53` 返回 `OK (1 test)`，随后 SDK 正常关闭模拟器、上传诊断附件，工作流于 `00:02:58` 以 `success` 结束。应用退出信息为 instrumentation 完成后的正常 force-stop，未记录应用崩溃或 ANR。原始退出日志见 [teardown.txt](validation/city-clothes/android-emulator/teardown.txt)，实际 Android 截图见下方。
+
+此前 [Actions 37222947608](https://github.com/752960522qq-ai/luna_15/actions/runs/37222947608) 的游戏测试通过后，QEMU 及辅助进程未退出，导致工作流超时取消。现已加入仅限 CI 测试模拟器的 15 秒宿主进程清理兜底和诊断输出，并完成补丁启用后的整条复测。本轮 SDK 正常退出，兜底未触发；未单独模拟强制清理分支。三次较早的中断/超时记录继续保留在 `android.json`。
+
+![Android 35 断网测试后的鞋裙装束与恢复存档](validation/city-clothes/android-emulator/test-preview.png)
 
 交付名为 `luna15-city-clothes-test.apk`，仅重命名，内容与 Actions 的 `luna15-life-v1-test.apk` 相同。应用代码和 APK 均不因最后的报告/CI 清理提交发生变化。
 

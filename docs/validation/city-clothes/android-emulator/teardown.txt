@@ -1,0 +1,18 @@
+2026-10-05T00:02:54.8178612Z ##[group]Terminate Emulator
+2026-10-05T00:02:54.8279418Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-10-05T00:02:54.8308392Z OK: killing emulator, bye bye
+2026-10-05T00:02:54.8309155Z OK
+2026-10-05T00:02:54.8313022Z INFO         | Wait for emulator (pid 2647) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+2026-10-05T00:02:54.8314430Z 
+2026-10-05T00:02:54.8326072Z ##[endgroup]
+2026-10-05T00:02:54.8415324Z USER_INFO    | Snapshots have been disabled by the user, save request is ignored.
+2026-10-05T00:02:54.8416183Z INFO         | Saving snapshot 'default_boot' took 1 ms
+2026-10-05T00:02:55.6458144Z ERROR        | stop: Not implemented
+2026-10-05T00:02:55.6459313Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+2026-10-05T00:02:55.6614694Z INFO         | removeAll
+2026-10-05T00:02:55.7428203Z WARNING      | Netsim Wifi dns:///localhost:40901 is gone due to Stream removed (CANCELLED)
+2026-10-05T00:02:57.4028952Z Cleaning up orphan processes
+2026-10-05T00:02:57.4539645Z Terminate orphan process: pid (2752) (adb)
+2026-10-05T00:02:57.4616275Z Terminate orphan process: pid (3115) (bash)
+2026-10-05T00:02:57.4688663Z Terminate orphan process: pid (3116) (sleep)
+
